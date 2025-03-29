@@ -11,6 +11,7 @@ namespace ControlePlus_BackEnd.models
         public int Id { get; set; }
         public string Nome { get; set; }
         public int UsuarioId { get; set; }
+        
         public Usuario? Responsavel { get; set; }
 
         public ICollection<Usuario>? Usuarios { get; set; }

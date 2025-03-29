@@ -15,5 +15,21 @@ namespace ControlePlus_BackEnd.db
         public DbSet<Categoria> tb_categoria { get; set; }
 
         public DbSet<Setor> tb_setor { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Setor>()
+                .HasOne(s => s.Responsavel)
+                .WithMany()
+                .HasForeignKey(s => s.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Setor)
+                .WithMany(s => s.Usuarios)
+                .HasForeignKey(u => u.SetorId);
+        }
     }
 }
