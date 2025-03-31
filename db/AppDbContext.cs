@@ -16,6 +16,10 @@ namespace ControlePlus_BackEnd.db
 
         public DbSet<Setor> tb_setor { get; set; }
 
+        public DbSet<Estoque> tb_estoque { get; set; }
+        
+        public DbSet<Pedido> tb_pedido { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -30,6 +34,12 @@ namespace ControlePlus_BackEnd.db
                 .HasOne(u => u.Setor)
                 .WithMany(s => s.Usuarios)
                 .HasForeignKey(u => u.SetorId);
+
+            modelBuilder.Entity<Pedido>()
+                .HasMany(p => p.Produtos)
+                .WithOne()
+                .HasForeignKey("PedidoId")
+                .IsRequired(false);
         }
     }
 }

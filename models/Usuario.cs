@@ -32,5 +32,7 @@ namespace ControlePlus_BackEnd.models
         public bool Ativo { get; set; }
         public DateTime DataCriacao { get; set; }
         public DateTime DataUltimaAtualizacao { get; set; }
+        public int? UsuarioId { get; set; }
+        public Usuario? ReponsavelUltimaAtualizacao { get; set; }
     }
 }

@@ -27,6 +27,7 @@ namespace ControlePlus_BackEnd.models
         public Categoria? Categoria { get; set; }
         public int FornecedorId { get; set; }
         public Fornecedor? Fornecedor { get; set; }
+        public Estoque? Estoque { get; set; }
         public decimal PrecoCompra { get; set; }
         public decimal PrecoVenda { get; set; }
 
