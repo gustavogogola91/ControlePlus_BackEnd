@@ -20,6 +20,10 @@ namespace ControlePlus_BackEnd.db
         
         public DbSet<Pedido> tb_pedido { get; set; }
 
+        public DbSet<Fornecedor> tb_fornecedor { get; set; }
+
+        public DbSet<Historico> tb_historico { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
