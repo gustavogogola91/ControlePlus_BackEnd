@@ -2,10 +2,7 @@ namespace ControlePlus_BackEnd.models
 {
     public class Pedido
     {
-        public Pedido()
-        {
-            //TODO verificar como receber a lista de objs e transformar em Produto
-        }
+        public Pedido() { }
         public int Id { get; set; }
         public List<int>? ProdutoIds { get; set; }
         public ICollection<Produto>? Produtos { get; set; }

@@ -1,6 +1,5 @@
 using ControlePlus_BackEnd.db;
 using ControlePlus_BackEnd.models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +18,7 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<Categoria>>> GetAll()
         {
             try
             {
@@ -57,7 +56,7 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpGet("nome/{nome}")]
-        public async Task<IActionResult> GetCategoriaById(string nome)
+        public async Task<IActionResult> GetCategoriaByName(string nome)
         {
             try
             {
@@ -78,9 +77,15 @@ namespace ControlePlus_BackEnd.Controllers
 
         }
 
-        [HttpPost("nova")]
+        [HttpPost]
         public async Task<IActionResult> NewCategoria([FromBody] Categoria categoria)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
             try
             {
                 var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoria.Nome);
@@ -89,7 +94,7 @@ namespace ControlePlus_BackEnd.Controllers
                 {
                     await _database.tb_categoria.AddAsync(categoria);
                     await _database.SaveChangesAsync();
-                    return CreatedAtAction(nameof(GetAll), new { id = categoria.Id }, categoria);
+                    return CreatedAtAction(nameof(GetCategoriaByName), new { nome = categoria.Nome }, categoria);
                 }
                 return BadRequest("Já existe uma categoria com este nome");
             }
