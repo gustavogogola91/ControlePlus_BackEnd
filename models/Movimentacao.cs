@@ -11,7 +11,7 @@ namespace ControlePlus_BackEnd.models
         public int ProdutoId { get; set; }
         public Produto? Produto { get; set; }
         public int Quantidade { get; set; }
-        public TipoMov tipo { get; set; }
-        public string? observacao { get; set; }
+        public TipoMov Tipo { get; set; }
+        public string? Observacao { get; set; }
     }
 }
