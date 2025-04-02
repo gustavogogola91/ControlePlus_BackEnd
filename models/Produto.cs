@@ -4,6 +4,7 @@ namespace ControlePlus_BackEnd.models
 {
     public class Produto
     {
+        public Produto() { }
 
         public Produto(int cod, string nome, string descricao, int setorId, int categoriaId, int fornecedorId, decimal precoCompra, decimal precoVenda)
         {

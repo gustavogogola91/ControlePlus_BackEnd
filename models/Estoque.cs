@@ -2,6 +2,8 @@ namespace ControlePlus_BackEnd.models
 {
     public class Estoque
     {
+
+        public Estoque() { }
         public Estoque(int produtoId, int quantidade, int quantidadeAlerta, int quantidadeVendidos)
         {
             ProdutoId = produtoId;

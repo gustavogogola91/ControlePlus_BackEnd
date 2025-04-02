@@ -4,6 +4,8 @@ namespace ControlePlus_BackEnd.models
 {
     public class Movimentacao
     {
+        public Movimentacao() { }
+
         //TODO construtor
         public int Id { get; set; }
         public int UsuarioId { get; set; }

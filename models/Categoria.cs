@@ -2,6 +2,8 @@ namespace ControlePlus_BackEnd.models
 {
     public class Categoria
     {
+
+        public Categoria() { }
         public Categoria(string nome)
         {
             Nome = nome;
