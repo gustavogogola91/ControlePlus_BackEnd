@@ -2,7 +2,7 @@ using ControlePlus_BackEnd.Enums;
 
 namespace ControlePlus_BackEnd.models
 {
-    public class Historico
+    public class Movimentacao
     {
         //TODO construtor
         public int Id { get; set; }

@@ -17,12 +17,12 @@ namespace ControlePlus_BackEnd.db
         public DbSet<Setor> tb_setor { get; set; }
 
         public DbSet<Estoque> tb_estoque { get; set; }
-        
+
         public DbSet<Pedido> tb_pedido { get; set; }
 
         public DbSet<Fornecedor> tb_fornecedor { get; set; }
 
-        public DbSet<Historico> tb_historico { get; set; }
+        public DbSet<Movimentacao> tb_movimentacao { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +44,13 @@ namespace ControlePlus_BackEnd.db
                 .WithOne()
                 .HasForeignKey("PedidoId")
                 .IsRequired(false);
+
+            modelBuilder.Entity<Pedido>()
+                .Property(p => p.ProdutoIds)
+                .HasConversion(
+                    v => string.Join(",", v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList()
+                );
         }
     }
 }

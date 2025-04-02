@@ -6,6 +6,7 @@ namespace ControlePlus_BackEnd.models
                 //TODO verificar como receber a lista de objs e transformar em Produto
         }
         public int Id { get; set; }
+        public List<int>? ProdutoIds { get; set; }
         public ICollection<Produto>? Produtos { get; set; }
         public int[]? NumeroAdiquirido { get; set; }
         public int UsuarioId { get; set; }
