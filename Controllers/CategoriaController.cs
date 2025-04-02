@@ -152,7 +152,7 @@ namespace ControlePlus_BackEnd.Controllers
                     return Ok();
                 }
 
-                return BadRequest($"Categoria id {id} não encontrada");
+                return NotFound($"Categoria id {id} não encontrada");
 
             }
             catch (Exception ex)
