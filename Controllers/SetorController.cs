@@ -88,7 +88,7 @@ namespace ControlePlus_BackEnd.Controllers
 
                 var validacao = await _database.tb_setor.FirstOrDefaultAsync(s => s.Nome == setor.Nome);
 
-                if (validacao != null)
+                if (validacao == null)
                 {
                     _database.tb_setor.Add(setor);
                     await _database.SaveChangesAsync();

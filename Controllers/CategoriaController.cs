@@ -34,7 +34,7 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCategoriaById(int id)
+        public async Task<ActionResult<Categoria>> GetCategoriaById(int id)
         {
             try
             {

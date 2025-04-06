@@ -18,7 +18,7 @@ namespace ControlePlus_BackEnd.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<Estoque>>> GetAll()
         {
             try
             {
@@ -44,12 +44,34 @@ namespace ControlePlus_BackEnd.Controllers
                 {
                     return Ok(estoque);
                 }
-                return NotFound($"Estoque id {id} n'ao encontrado");
+                return NotFound($"Estoque id {id} não encontrado");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return StatusCode(500, "Erro ao buscar o estoque");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> NewEstoque([FromBody] Estoque estoque)
+        {
+            try
+            {
+                var validacao = await _database.tb_estoque.FirstOrDefaultAsync(e => e.ProdutoId == estoque.ProdutoId);
+
+                if (validacao == null)
+                {
+                    _database.tb_estoque.Add(estoque);
+                    await _database.SaveChangesAsync();
+                    return Ok(estoque);
+                }
+                return BadRequest($"Já existe um estoque associado ao produto {validacao.Produto.Nome}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao adicionar estoque.");
             }
         }
     }
