@@ -1,3 +1,5 @@
+using ControlePlus_BackEnd.Enums;
+
 namespace ControlePlus_BackEnd.models
 {
     public class Usuario
@@ -5,12 +7,11 @@ namespace ControlePlus_BackEnd.models
 
         public Usuario()
         {
-            Roles = new List<string>();
             Ativo = true;
             DataCriacao = DateTime.Now;
             DataUltimaAtualizacao = DateTime.Now;
         }
-        public Usuario(string username, string nome, int setorId, string senha, List<string> roles, DateTime dataCriacao, DateTime dataUltimaAtualização)
+        public Usuario(string username, string nome, int setorId, string senha, Roles roles, DateTime dataCriacao, DateTime dataUltimaAtualização)
         {
             Username = username;
             Nome = nome;
@@ -28,10 +29,10 @@ namespace ControlePlus_BackEnd.models
         public int SetorId { get; set; }
         public Setor? Setor { get; set; }
         public string Senha { get; set; }
-        public List<string> Roles { get; set; } //TODO decidir o tipo do role
+        public Roles Roles { get; set; } //TODO decidir o tipo do role
         public bool Ativo { get; set; }
-        public DateTime DataCriacao { get; set; }
-        public DateTime DataUltimaAtualizacao { get; set; }
+        public DateTime? DataCriacao { get; set; }
+        public DateTime? DataUltimaAtualizacao { get; set; }
         public int? UsuarioId { get; set; }
         public Usuario? ReponsavelUltimaAtualizacao { get; set; }
     }
