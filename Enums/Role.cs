@@ -1,6 +1,6 @@
 namespace ControlePlus_BackEnd.Enums
 {
-    public enum Roles
+    public enum Role
     {
         Admin,
         Usuario

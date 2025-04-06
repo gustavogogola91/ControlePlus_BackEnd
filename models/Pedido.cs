@@ -1,3 +1,5 @@
+using ControlePlus_BackEnd.Enums;
+
 namespace ControlePlus_BackEnd.models
 {
     public class Pedido
