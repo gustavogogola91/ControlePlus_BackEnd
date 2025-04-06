@@ -22,7 +22,7 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var estoques = await _database.tb_estoque.ToListAsync();
+                var estoques = await _database.tb_estoque.Include(e => e.Produto).ToListAsync();
 
                 return Ok(estoques);
             }
@@ -38,13 +38,33 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var estoque = await _database.tb_estoque.FirstOrDefaultAsync(e => e.Id == id);
+                var estoque = await _database.tb_estoque.Include(e => e.Produto).FirstOrDefaultAsync(e => e.Id == id);
 
                 if (estoque != null)
                 {
                     return Ok(estoque);
                 }
                 return NotFound($"Estoque id {id} não encontrado");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao buscar o estoque");
+            }
+        }
+
+        [HttpGet("produto/{id}")]
+        public async Task<ActionResult<Estoque>> GetByProdutoId(int id)
+        {
+            try
+            {
+                var estoque = await _database.tb_estoque.Include(e => e.Produto).FirstOrDefaultAsync(e => e.ProdutoId == id);
+
+                if (estoque != null)
+                {
+                    return Ok(estoque);
+                }
+                return NotFound("Estoque relacionado ao produto id {id} não encontrado");
             }
             catch (Exception ex)
             {
@@ -72,6 +92,50 @@ namespace ControlePlus_BackEnd.Controllers
             {
                 Console.WriteLine(ex);
                 return StatusCode(500, "Erro ao adicionar estoque.");
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> ModifyEstoque([FromBody] Estoque estoqueModificado, int id)
+        {
+            try
+            {
+                var estoque = await _database.tb_estoque.FindAsync(id);
+
+                if (estoque != null)
+                {
+                    _database.Entry(estoque).CurrentValues.SetValues(estoqueModificado);
+                    await _database.SaveChangesAsync();
+                }
+
+                return NotFound($"Estoque id {id} não encontrado.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao alterar estoque.");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEstoque(int id)
+        {
+            try
+            {
+                var estoque = await _database.tb_estoque.FindAsync(id);
+
+                if (estoque != null)
+                {
+                    _database.Remove(estoque);
+                    await _database.SaveChangesAsync();
+                    return NoContent();
+                }
+                return NotFound($"Estoque id {id} não encontrado");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao alterar estoque.");
             }
         }
     }
