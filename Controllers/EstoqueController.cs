@@ -86,7 +86,8 @@ namespace ControlePlus_BackEnd.Controllers
                     await _database.SaveChangesAsync();
                     return Ok(estoque);
                 }
-                return BadRequest($"Já existe um estoque associado ao produto {validacao.Produto.Nome}");
+                var produto = await _database.tb_produto.FindAsync(estoque.ProdutoId);
+                return BadRequest($"Já existe um estoque associado ao produto {produto.Nome}");
             }
             catch (Exception ex)
             {
