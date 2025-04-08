@@ -1,3 +1,4 @@
+using ControlePlus_BackEnd.Enums;
 using ControlePlus_BackEnd.models;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +28,8 @@ namespace ControlePlus_BackEnd.db
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasPostgresEnum<Role>();
 
             modelBuilder.Entity<Setor>()
                 .HasOne(s => s.Responsavel)

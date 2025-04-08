@@ -1,4 +1,4 @@
-namespace ControlePlus_BackEnd.models
+namespace ControlePlus_BackEnd.Enums
 {
     public enum Status
     {
