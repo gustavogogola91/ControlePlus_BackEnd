@@ -9,6 +9,7 @@ namespace ControlePlus_BackEnd.Profiles
         public CategoriaProfile()
         {
             CreateMap<Categoria, CategoriaDTO>().ForMember(dest => dest.Produtos, opt => opt.MapFrom(src => src.Produtos.Select(p => p.Nome).ToList()));
+            CreateMap<CategoriaPostDTO, Categoria>().ForMember(dest => dest.Produtos, opt => opt.Ignore());
         }
     }
 }

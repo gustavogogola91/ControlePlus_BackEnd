@@ -39,15 +39,15 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Categoria>> GetCategoriaById(int id)
+        public async Task<ActionResult<CategoriaDTO>> GetCategoriaById(int id)
         {
             try
             {
-                var categoria = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Id == id);
+                var categoria = await _database.tb_categoria.Include(c => c.Produtos).FirstOrDefaultAsync(c => c.Id == id);
 
                 if (categoria != null)
                 {
-                    return Ok(categoria);
+                    return Ok(_mapper.Map<CategoriaDTO>(categoria));
                 }
                 return NotFound($"Categoria com id {id} não encontrada");
             }
@@ -61,15 +61,15 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpGet("nome/{nome}")]
-        public async Task<IActionResult> GetCategoriaByName(string nome)
+        public async Task<ActionResult<CategoriaDTO>> GetCategoriaByName(string nome)
         {
             try
             {
-                var categoria = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == nome);
+                var categoria = await _database.tb_categoria.Include(c => c.Produtos).FirstOrDefaultAsync(c => c.Nome == nome);
 
                 if (categoria != null)
                 {
-                    return Ok(categoria);
+                    return Ok(_mapper.Map<CategoriaDTO>(categoria));
                 }
                 return NotFound($"Categoria {nome} não encontrada");
             }
@@ -83,7 +83,7 @@ namespace ControlePlus_BackEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> NewCategoria([FromBody] Categoria categoria)
+        public async Task<IActionResult> NewCategoria([FromBody] CategoriaPostDTO categoriaDTO)
         {
 
             if (!ModelState.IsValid)
@@ -93,11 +93,13 @@ namespace ControlePlus_BackEnd.Controllers
 
             try
             {
-                var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoria.Nome);
+                var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoriaDTO.Nome);
 
                 if (validacao == null)
                 {
+                    var categoria = _mapper.Map<Categoria>(categoriaDTO);
                     await _database.tb_categoria.AddAsync(categoria);
+                    Console.WriteLine(categoria);
                     await _database.SaveChangesAsync();
                     return CreatedAtAction(nameof(GetCategoriaByName), new { nome = categoria.Nome }, categoria);
                 }
@@ -113,7 +115,7 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> ModifyCategoria(int id, [FromBody] Categoria categoriaModificada)
+        public async Task<IActionResult> ModifyCategoria(int id, [FromBody] CategoriaDTO categoriaDTO)
         {
 
             try
@@ -123,17 +125,17 @@ namespace ControlePlus_BackEnd.Controllers
                 if (categoria != null)
                 {
 
-                    var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoriaModificada.Nome);
+                    var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoriaDTO.Nome);
 
-                    if (validacao == null)
+                    if (validacao == null && categoriaDTO.Nome != null)
                     {
-                        categoria.Nome = categoriaModificada.Nome;
+                        categoria.Nome = categoriaDTO.Nome;
                         _database.tb_categoria.Update(categoria);
                         await _database.SaveChangesAsync();
                         return NoContent();
 
                     }
-                    return BadRequest($"Já existe uma categoria com o nome {categoriaModificada.Nome}");
+                    return BadRequest($"Já existe uma categoria com o nome {categoriaDTO.Nome}");
 
                 }
                 return NotFound($"Categoria id {id} não encontrada");
