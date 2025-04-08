@@ -84,32 +84,32 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> ModifyPedido(int id, [FromBody] Pedido pedidoMod)
-        {
-            try
-            {
-                var pedidoExistente = await _database.tb_usuario.FindAsync(id);
-                if (pedidoExistente != null)
-                {
-                    pedidoExistente.Nome = pedidoMod.Nome;
-                    pedidoExistente.Username = pedidoMod.Username;
-                    pedidoExistente.SetorId = pedidoMod.SetorId;
-                    pedidoExistente.Roles = pedidoMod.Roles;
-                    pedidoExistente.Ativo = pedidoMod.Ativo;
-                    pedidoExistente.DataUltimaAtualizacao = DateTime.UtcNow;
+        // [HttpPut("{id}")]
+        // public async Task<IActionResult> ModifyPedido(int id, [FromBody] Pedido pedidoMod)
+        // {
+        //     try
+        //     {
+        //         var pedidoExistente = await _database.tb_usuario.FindAsync(id);
+        //         if (pedidoExistente != null)
+        //         {
+        //             pedidoExistente.Nome = pedidoMod.Nome;
+        //             pedidoExistente.Username = pedidoMod.Username;
+        //             pedidoExistente.SetorId = pedidoMod.SetorId;
+        //             pedidoExistente.Roles = pedidoMod.Roles;
+        //             pedidoExistente.Ativo = pedidoMod.Ativo;
+        //             pedidoExistente.DataUltimaAtualizacao = DateTime.UtcNow;
 
-                    await _database.SaveChangesAsync();
-                    return Ok(usuarioExistente);
-                }
-                return NotFound($"Setor id {id} não encontrado");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao modificar o Usuario");
-            }
-        }
+        //             await _database.SaveChangesAsync();
+        //             return Ok(usuarioExistente);
+        //         }
+        //         return NotFound($"Setor id {id} não encontrado");
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine(ex);
+        //         return StatusCode(500, "Erro ao modificar o Usuario");
+        //     }
+        // }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePedido(int id)
