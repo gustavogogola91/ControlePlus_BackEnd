@@ -88,17 +88,6 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                // var usuario = await _database.tb_usuario.FindAsync(id);
-
-                // if (usuario == null)
-                // {
-                //     return NotFound($"usuario id {id} não encontrado");
-                // }
-
-                // _database.Entry(usuario).CurrentValues.SetValues(usuarioMod);
-
-                // await _database.SaveChangesAsync();
-                // return NoContent();
                 var usuarioExistente = await _database.tb_usuario.FindAsync(id);
                 if (usuarioExistente != null)
                 {
