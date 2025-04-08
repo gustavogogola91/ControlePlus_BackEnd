@@ -1,17 +1,13 @@
 using System.Text.Json.Serialization;
 using ControlePlus_BackEnd.db;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers()
-    .AddJsonOptions(x =>
-    {
-        x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-        x.JsonSerializerOptions.WriteIndented = true;
-    });
+builder.Services.AddControllers();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var connectionString = builder.Configuration.GetConnectionString("DbConnectionString");
 

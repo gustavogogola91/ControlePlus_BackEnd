@@ -1,4 +1,6 @@
+using AutoMapper;
 using ControlePlus_BackEnd.db;
+using ControlePlus_BackEnd.Dto;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,21 +11,24 @@ namespace ControlePlus_BackEnd.Controllers
     [Route("categoria")]
     public class CategoriaController : ControllerBase
     {
+        private readonly IMapper _mapper;
         private readonly AppDbContext _database;
 
-        public CategoriaController(AppDbContext database)
+        public CategoriaController(IMapper mapper, AppDbContext database)
         {
+            _mapper = mapper;
             _database = database;
         }
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Categoria>>> GetAll()
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAll()
         {
             try
             {
-                var categorias = await _database.tb_categoria.ToListAsync();
-                return Ok(categorias);
+                var categorias = await _database.tb_categoria.Include(c => c.Produtos).ToListAsync();
+                var categoriasMap = _mapper.Map<List<CategoriaDTO>>(categorias);
+                return Ok(categoriasMap);
             }
             catch (Exception ex)
             {
@@ -85,7 +90,7 @@ namespace ControlePlus_BackEnd.Controllers
             {
                 return BadRequest(ModelState);
             }
-            
+
             try
             {
                 var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoria.Nome);
