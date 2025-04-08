@@ -1,0 +1,156 @@
+using ControlePlus_BackEnd.db;
+using ControlePlus_BackEnd.models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace ControlePlus_BackEnd.Controllers
+{
+    [ApiController]
+    [Route("fornecedor")]
+    public class FornecedorController : ControllerBase
+    {
+        private readonly AppDbContext _database;
+
+        public FornecedorController(AppDbContext database)
+        {
+            _database = database;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Fornecedor>>> GetFornecedor()
+        {
+            try
+            {
+                var fornecedores = await _database.tb_fornecedor.ToListAsync();
+
+                return Ok(fornecedores);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao buscar forncedores.");
+            }
+        }
+
+        [HttpGet("{int}")]
+        public async Task<ActionResult<Fornecedor>> GetFornecedorById(int id)
+        {
+            try
+            {
+                var fornecedor = await _database.tb_fornecedor.FindAsync(id);
+
+                if (fornecedor != null)
+                {
+                    return Ok(fornecedor);
+                }
+
+                return NotFound($"Erro ao buscar fornecedor id {id}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao buscar forncedores.");
+            }
+        }
+
+        [HttpGet("nome/{name}")]
+        public async Task<ActionResult<Fornecedor>> GetFornecedorByName(string name)
+        {
+            try
+            {
+                var fornecedor = await _database.tb_fornecedor.FirstOrDefaultAsync(f => f.Nome == name);
+
+                if (fornecedor != null)
+                {
+                    return Ok(fornecedor);
+                }
+
+                return NotFound($"Erro ao buscar fornecedor nome {name}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao buscar forncedores.");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> NewFornecedor([FromBody] Fornecedor fornecedor)
+        {
+            try
+            {
+                var validation = await _database.tb_fornecedor.FirstOrDefaultAsync(f => f.Nome == fornecedor.Nome);
+
+                if (validation == null)
+                {
+                    _database.tb_fornecedor.Add(fornecedor);
+                    await _database.SaveChangesAsync();
+                    return Created();
+                }
+                return BadRequest($"Fornecedor {validation.Nome} já existe no banco de dados.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao adicionar fornecedor.");
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> ModifyFornecedor([FromBody] Fornecedor fornecedorModificado, int id)
+        {
+            try
+            {
+                var fornecedor = await _database.tb_fornecedor.FindAsync();
+
+                if (fornecedor != null)
+                {
+                    if (fornecedorModificado.Nome != null)
+                    {
+                        fornecedor.Nome = fornecedorModificado.Nome;
+                    }
+                    if (fornecedorModificado.Endereco != null)
+                    {
+                        fornecedor.Endereco = fornecedorModificado.Endereco;
+                    }
+                    if (fornecedorModificado.Contato != null)
+                    {
+                        fornecedor.Contato = fornecedorModificado.Contato;
+                    }
+
+                    _database.tb_fornecedor.Update(fornecedor);
+                    await _database.SaveChangesAsync();
+                    return NoContent();
+                }
+                return NotFound($"Fornecedor id {id} não encontrado.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao adicionar fornecedor.");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteFornecedor([FromBody] Fornecedor fornecedorModificado, int id)
+        {
+            try
+            {
+                var fornecedor = await _database.tb_fornecedor.FindAsync();
+
+                if (fornecedor != null)
+                {
+                    _database.tb_fornecedor.Remove(fornecedor);
+                    await _database.SaveChangesAsync();
+                    return NoContent();
+                }
+                return NotFound($"Fornecedor id {id} não encontrado.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao adicionar fornecedor.");
+            }
+        }
+    }
+}
