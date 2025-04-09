@@ -4,6 +4,6 @@ namespace ControlePlus_BackEnd.Dto
     {
         public int Id { get; set; }
         public string? Nome { get; set; }
-        public List<string>? Produtos { get; set; }
+        public List<ProdutoResumidoDTO>? Produtos { get; set; }
     }
 }

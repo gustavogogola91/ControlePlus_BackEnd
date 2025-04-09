@@ -47,7 +47,7 @@ namespace ControlePlus_BackEnd.Controllers
 
                 if (estoque != null)
                 {
-                    var estoqueDTO = _mapper.Map<List<EstoqueDTO>>(estoque);
+                    var estoqueDTO = _mapper.Map<EstoqueDTO>(estoque);
                     return Ok(estoqueDTO);
                 }
                 return NotFound($"Estoque id {id} não encontrado");
@@ -68,7 +68,7 @@ namespace ControlePlus_BackEnd.Controllers
 
                 if (estoque != null)
                 {
-                    var estoqueDTO = _mapper.Map<List<EstoqueDTO>>(estoque);
+                    var estoqueDTO = _mapper.Map<EstoqueDTO>(estoque);
                     return Ok(estoqueDTO);
                 }
                 return NotFound("Estoque relacionado ao produto id {id} não encontrado");
