@@ -1,10 +1,9 @@
 
 
 using AutoMapper;
-using ControlePlus_BackEnd.Dto;
 using ControlePlus_BackEnd.models;
 
-namespace ControlePlus_BackEnd.Profiles
+namespace ControlePlus_BackEnd.Dto.Profiles
 {
     public class SetorProfile : Profile
     {
