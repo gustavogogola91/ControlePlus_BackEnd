@@ -1,4 +1,6 @@
+using AutoMapper;
 using ControlePlus_BackEnd.db;
+using ControlePlus_BackEnd.Dto;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,21 +12,24 @@ namespace ControlePlus_BackEnd.Controllers
     public class EstoqueController : ControllerBase
     {
 
+        private readonly IMapper _mapper;
         private readonly AppDbContext _database;
 
-        public EstoqueController(AppDbContext database)
+        public EstoqueController(IMapper mapper, AppDbContext database)
         {
+            _mapper = mapper;
             _database = database;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Estoque>>> GetAll()
+        public async Task<ActionResult<IEnumerable<EstoqueDTO>>> GetAll()
         {
             try
             {
-                var estoques = await _database.tb_estoque.Include(e => e.Produto).ToListAsync();
+                var estoques = await _database.tb_estoque.Include(e => e.Produto).ThenInclude(e => e.Fornecedor).Include(p => p.Produto).ThenInclude(p => p.Setor).ToListAsync();
 
-                return Ok(estoques);
+                var estoquesDTO = _mapper.Map<List<EstoqueDTO>>(estoques);
+                return Ok(estoquesDTO);
             }
             catch (Exception ex)
             {
@@ -34,15 +39,16 @@ namespace ControlePlus_BackEnd.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Estoque>> GetEstoqueById(int id)
+        public async Task<ActionResult<EstoqueDTO>> GetEstoqueById(int id)
         {
             try
             {
-                var estoque = await _database.tb_estoque.Include(e => e.Produto).FirstOrDefaultAsync(e => e.Id == id);
+                var estoque = await _database.tb_estoque.Include(e => e.Produto).ThenInclude(e => e.Fornecedor).Include(p => p.Produto).ThenInclude(p => p.Setor).FirstOrDefaultAsync(e => e.Id == id);
 
                 if (estoque != null)
                 {
-                    return Ok(estoque);
+                    var estoqueDTO = _mapper.Map<List<EstoqueDTO>>(estoque);
+                    return Ok(estoqueDTO);
                 }
                 return NotFound($"Estoque id {id} não encontrado");
             }
@@ -58,11 +64,12 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var estoque = await _database.tb_estoque.Include(e => e.Produto).FirstOrDefaultAsync(e => e.ProdutoId == id);
+                var estoque = await _database.tb_estoque.Include(e => e.Produto).ThenInclude(e => e.Fornecedor).Include(p => p.Produto).ThenInclude(p => p.Setor).FirstOrDefaultAsync(e => e.ProdutoId == id);
 
                 if (estoque != null)
                 {
-                    return Ok(estoque);
+                    var estoqueDTO = _mapper.Map<List<EstoqueDTO>>(estoque);
+                    return Ok(estoqueDTO);
                 }
                 return NotFound("Estoque relacionado ao produto id {id} não encontrado");
             }
