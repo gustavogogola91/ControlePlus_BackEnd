@@ -3,6 +3,9 @@ using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+//TODO: Implementar um requisição simples e uma detalhada
+//TODO: Implementar DTOs nos metodos GET, PUT e POST
+
 namespace ControlePlus_BackEnd.Controllers
 {
     [ApiController]
