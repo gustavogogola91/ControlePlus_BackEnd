@@ -9,6 +9,8 @@ namespace ControlePlus_BackEnd.Dto.Profiles
         {
             CreateMap<Estoque, EstoqueDTO>()
             .ForMember(dest => dest.Produto, opt => opt.MapFrom(src => src.Produto));
+
+            CreateMap<EstoquePostDTO, Estoque>();
         }
     }
 }

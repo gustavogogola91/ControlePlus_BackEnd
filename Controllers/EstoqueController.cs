@@ -81,19 +81,23 @@ namespace ControlePlus_BackEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> NewEstoque([FromBody] Estoque estoque)
+        public async Task<IActionResult> NewEstoque([FromBody] EstoquePostDTO estoquePostDto)
         {
             try
             {
-                var validacao = await _database.tb_estoque.FirstOrDefaultAsync(e => e.ProdutoId == estoque.ProdutoId);
+                var validacao = await _database.tb_estoque.FirstOrDefaultAsync(e => e.ProdutoId == estoquePostDto.ProdutoId);
 
                 if (validacao == null)
                 {
+                    var estoque = _mapper.Map<Estoque>(estoquePostDto);
                     _database.tb_estoque.Add(estoque);
                     await _database.SaveChangesAsync();
-                    return Ok(estoque);
+
+                    var estoqueDto = _mapper.Map<EstoqueDTO>(estoque);
+
+                    return Ok(estoqueDto);
                 }
-                var produto = await _database.tb_produto.FindAsync(estoque.ProdutoId);
+                var produto = await _database.tb_produto.FindAsync(estoquePostDto.ProdutoId);
                 return BadRequest($"Já existe um estoque associado ao produto {produto.Nome}");
             }
             catch (Exception ex)
