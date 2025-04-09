@@ -1,6 +1,6 @@
 namespace ControlePlus_BackEnd.Dto
 {
-    public class ProdutoResumoDTO
+    public class ProdutoCompletoDTO
     {
         public string? Nome { get; set; }
         public decimal PrecoCompra { get; set; }

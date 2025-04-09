@@ -7,8 +7,11 @@ namespace ControlePlus_BackEnd.Dto.Profiles
     {
         public ProdutoProfile()
         {
-            CreateMap<Produto, ProdutoResumoDTO>()
+            CreateMap<Produto, ProdutoCompletoDTO>()
             .ForMember(dest => dest.FornecedorNome, opt => opt.MapFrom(src => src.Fornecedor != null ? src.Fornecedor.Nome : null))
+            .ForMember(dest => dest.SetorNome, opt => opt.MapFrom(src => src.Setor != null ? src.Setor.Nome : null));
+
+            CreateMap<Produto, ProdutoResumidoDTO>()
             .ForMember(dest => dest.SetorNome, opt => opt.MapFrom(src => src.Setor != null ? src.Setor.Nome : null));
         }
     }

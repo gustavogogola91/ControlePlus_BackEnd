@@ -11,6 +11,7 @@ namespace ControlePlus_BackEnd.Controllers
     [Route("categoria")]
     public class CategoriaController : ControllerBase
     {
+
         private readonly IMapper _mapper;
         private readonly AppDbContext _database;
 
@@ -26,9 +27,10 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var categorias = await _database.tb_categoria.Include(c => c.Produtos).ToListAsync();
-                var categoriasMap = _mapper.Map<List<CategoriaDTO>>(categorias);
-                return Ok(categoriasMap);
+                var categorias = await _database.tb_categoria.Include(c => c.Produtos).ThenInclude(p => p.Setor).Include(c => c.Produtos).ThenInclude(p => p.Fornecedor).ToListAsync();
+
+                var categoriasDto = _mapper.Map<List<CategoriaDTO>>(categorias);
+                return Ok(categoriasDto);
             }
             catch (Exception ex)
             {
@@ -43,12 +45,14 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var categoria = await _database.tb_categoria.Include(c => c.Produtos).FirstOrDefaultAsync(c => c.Id == id);
+                var categoria = await _database.tb_categoria.Include(c => c.Produtos).ThenInclude(p => p.Setor).Include(c => c.Produtos).ThenInclude(p => p.Fornecedor).FirstOrDefaultAsync(c => c.Id == id);
 
                 if (categoria != null)
                 {
-                    return Ok(_mapper.Map<CategoriaDTO>(categoria));
+                    var categoriaDto = _mapper.Map<List<CategoriaDTO>>(categoria);
+                    return Ok(categoriaDto);
                 }
+
                 return NotFound($"Categoria com id {id} não encontrada");
             }
             catch (Exception ex)
@@ -65,11 +69,12 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var categoria = await _database.tb_categoria.Include(c => c.Produtos).FirstOrDefaultAsync(c => c.Nome == nome);
+                var categoria = await _database.tb_categoria.Include(c => c.Produtos).ThenInclude(p => p.Setor).Include(c => c.Produtos).ThenInclude(p => p.Fornecedor).FirstOrDefaultAsync(c => c.Nome == nome);
 
                 if (categoria != null)
                 {
-                    return Ok(_mapper.Map<CategoriaDTO>(categoria));
+                    var categoriaDto = _mapper.Map<List<CategoriaDTO>>(categoria);
+                    return Ok(categoriaDto);
                 }
                 return NotFound($"Categoria {nome} não encontrada");
             }
@@ -99,8 +104,8 @@ namespace ControlePlus_BackEnd.Controllers
                 {
                     var categoria = _mapper.Map<Categoria>(categoriaDTO);
                     await _database.tb_categoria.AddAsync(categoria);
-                    Console.WriteLine(categoria);
                     await _database.SaveChangesAsync();
+
                     return CreatedAtAction(nameof(GetCategoriaByName), new { nome = categoria.Nome }, categoria);
                 }
                 return BadRequest("Já existe uma categoria com este nome");
