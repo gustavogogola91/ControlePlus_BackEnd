@@ -1,8 +1,12 @@
+using AutoMapper;
 using ControlePlus_BackEnd.db;
+using ControlePlus_BackEnd.Dto;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+//TODO: implementar DTOs nos metodos, PUT e GETid
+//TODO: Fazer uma requisição de setores simples
 namespace ControlePlus_BackEnd.Controllers
 {
     [ApiController]
@@ -10,21 +14,27 @@ namespace ControlePlus_BackEnd.Controllers
     public class SetorController : ControllerBase
     {
 
+        private readonly IMapper _mapper;
         private readonly AppDbContext _database;
 
-        public SetorController(AppDbContext database)
+        public SetorController(IMapper mapper ,AppDbContext database)
         {
+            _mapper = mapper;
             _database = database;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Setor>>> GetAll()
+        public async Task<ActionResult<IEnumerable<SetorDetalhadoDTO>>> GetAll()
         {
             try
             {
-                var setores = await _database.tb_setor.ToListAsync();
+                var setores = await _database.tb_setor
+                .Include(s => s.Usuarios)
+                .ToListAsync();
 
-                return Ok(setores);
+                var setoresDTO = _mapper.Map<List<SetorDetalhadoDTO>>(setores);
+
+                return Ok(setoresDTO);
             }
             catch (Exception ex)
             {
@@ -76,7 +86,7 @@ namespace ControlePlus_BackEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> NewSetor([FromBody] Setor setor)
+        public async Task<IActionResult> NewSetor([FromBody] SetorPostDTO setorDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -85,16 +95,16 @@ namespace ControlePlus_BackEnd.Controllers
 
             try
             {
-
-                var validacao = await _database.tb_setor.FirstOrDefaultAsync(s => s.Nome == setor.Nome);
-
+                var validacao = await _database.tb_setor.FirstOrDefaultAsync(s => s.Nome == setorDTO.Nome);
+                System.Console.WriteLine("Validação sendo feita...");
                 if (validacao == null)
                 {
-                    _database.tb_setor.Add(setor);
+                    var setor = _mapper.Map<Setor>(setorDTO);
+                    await _database.tb_setor.AddAsync(setor);
                     await _database.SaveChangesAsync();
                     return CreatedAtAction(nameof(GetSetorByName), new { nome = setor.Nome }, setor);
                 }
-                return BadRequest($"Já existe um setor com o nome {setor.Nome}");
+                return BadRequest($"Já existe um setor com o nome {setorDTO.Nome}");
             }
             catch (Exception ex)
             {
