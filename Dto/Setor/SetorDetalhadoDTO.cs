@@ -9,6 +9,7 @@ namespace ControlePlus_BackEnd.Dto
         public int? UsuarioId { get; set; }
 
         public List<UsuarioDTO> Usuarios {get; set;} = [];
+        //TODO: impementar a lista de produtos
 
     }
 }

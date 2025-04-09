@@ -17,14 +17,15 @@ namespace ControlePlus_BackEnd.Controllers
         private readonly IMapper _mapper;
         private readonly AppDbContext _database;
 
-        public SetorController(IMapper mapper ,AppDbContext database)
+        public SetorController(IMapper mapper, AppDbContext database)
         {
             _mapper = mapper;
             _database = database;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SetorDetalhadoDTO>>> GetAll()
+        [Route("setores")]
+        public async Task<ActionResult<IEnumerable<SetorDTO>>> GetAll()
         {
             try
             {
@@ -32,7 +33,7 @@ namespace ControlePlus_BackEnd.Controllers
                 .Include(s => s.Usuarios)
                 .ToListAsync();
 
-                var setoresDTO = _mapper.Map<List<SetorDetalhadoDTO>>(setores);
+                var setoresDTO = _mapper.Map<List<SetorDTO>>(setores);
 
                 return Ok(setoresDTO);
             }
@@ -42,6 +43,27 @@ namespace ControlePlus_BackEnd.Controllers
                 return StatusCode(500, "Erro ao buscar Setores");
             }
         }
+        //TODO: implementar quando tiver a ProdutoDto simples
+        // [HttpGet]
+        // [Route("setores/detalhados")]
+        // public async Task<ActionResult<IEnumerable<SetorDetalhadoDTO>>> GetAllDetailed()
+        // {
+        //     try
+        //     {
+        //         var setores = await _database.tb_setor
+        //         .Include(s => s.Usuarios)
+        //         .ToListAsync();
+
+        //         var setoresDTO = _mapper.Map<List<SetorDetalhadoDTO>>(setores);
+
+        //         return Ok(setoresDTO);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine(ex);
+        //         return StatusCode(500, "Erro ao buscar Setores");
+        //     }
+        // }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Setor>> GetSetorById(int id)
@@ -114,31 +136,25 @@ namespace ControlePlus_BackEnd.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> ModifySetor(int id, [FromBody] Setor setorModificado)
+        public async Task<IActionResult> ModifySetor(int id, [FromBody] SetorUpdateDTO setorModificado)
         {
-
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); //os erros message dos negocio
+            }
             try
             {
                 var setor = await _database.tb_setor.FirstOrDefaultAsync(s => s.Id == id);
 
-                if (setor != null)
+                if (setor == null)
                 {
-                    if (!string.IsNullOrEmpty(setorModificado.Nome))
-                    {
-                        setor.Nome = setorModificado.Nome;
-                    }
-
-                    if (setorModificado.UsuarioId == 0)
-                    {
-                        setor.UsuarioId = setorModificado.UsuarioId;
-                    }
-
-                    _database.tb_setor.Update(setor);
-                    await _database.SaveChangesAsync();
-                    return NoContent();
+                    return NotFound($"Setor id {id} não encontrado");
                 }
-                return NotFound($"Setor id {id} não encontrado");
 
+                _mapper.Map(setorModificado, setor);
+
+                await _database.SaveChangesAsync();
+                return NoContent();
             }
             catch (Exception ex)
             {
