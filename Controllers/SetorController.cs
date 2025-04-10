@@ -44,27 +44,29 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
         //TODO: implementar quando tiver a ProdutoDto simples
-        // [HttpGet]
-        // [Route("setores/detalhados")]
-        // public async Task<ActionResult<IEnumerable<SetorDetalhadoDTO>>> GetAllDetailed()
-        // {
-        //     try
-        //     {
-        //         var setores = await _database.tb_setor
-        //         .Include(s => s.Usuarios)
-        //         .ToListAsync();
+        [HttpGet]
+        [Route("setores/detalhados")]
+        public async Task<ActionResult<IEnumerable<SetorDetalhadoDTO>>> GetAllDetailed()
+        {
+            try
+            {
+                var setores = await _database.tb_setor
+                .Include(s => s.Usuarios)
+                .Include(s => s.Produtos)
+                .ToListAsync();
 
-        //         var setoresDTO = _mapper.Map<List<SetorDetalhadoDTO>>(setores);
+                var setoresDTO = _mapper.Map<List<SetorDetalhadoDTO>>(setores);
 
-        //         return Ok(setoresDTO);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine(ex);
-        //         return StatusCode(500, "Erro ao buscar Setores");
-        //     }
-        // }
-
+                return Ok(setoresDTO);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Erro ao buscar Setores");
+            }
+        }
+        
+        //TODO: IMplementar DTO aqui
         [HttpGet("{id}")]
         public async Task<ActionResult<Setor>> GetSetorById(int id)
         {
@@ -85,7 +87,7 @@ namespace ControlePlus_BackEnd.Controllers
                 return StatusCode(500, "Erro ao buscar dados");
             }
         }
-
+        //TODO: IMplementar DTO aqui
         [HttpGet("nome/{nome}")]
         public async Task<ActionResult<Setor>> GetSetorByName(string nome)
         {
