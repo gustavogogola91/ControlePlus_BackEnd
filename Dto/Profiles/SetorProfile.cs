@@ -22,6 +22,12 @@ namespace ControlePlus_BackEnd.Dto.Profiles
             CreateMap<Setor, SetorDetalhadoDTO>()
             .ForMember(dest => dest.Usuarios, opt => opt.MapFrom(src => src.Usuarios));
 
+            CreateMap<Setor, SetorDTO>();
+
+            CreateMap<SetorUpdateDTO, Setor>()
+                .ForMember(dest => dest.Responsavel, opt => opt.Ignore())
+                .ForMember(dest => dest.Usuarios, opt => opt.Ignore())
+                .ForMember(dest => dest.Produtos, opt => opt.Ignore());
 
         }
     }
