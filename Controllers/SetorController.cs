@@ -23,26 +23,29 @@ namespace ControlePlus_BackEnd.Controllers
             _database = database;
         }
 
+
         [HttpGet]
         [Route("setores")]
         public async Task<ActionResult<IEnumerable<SetorDTO>>> GetAll()
         {
             try
             {
-                var setores = await _database.tb_setor
-                .Include(s => s.Usuarios)
-                .ToListAsync();
+                var setores = await _database.tb_setor.Include(s => s.Usuarios).ToListAsync();
+
+                if (setores == null || !setores.Any())
+                {
+                    return NotFound("Não existem setores cadastrados.");
+                }
 
                 var setoresDTO = _mapper.Map<List<SetorDTO>>(setores);
-
                 return Ok(setoresDTO);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar Setores");
+                return StatusCode(500, ex);
             }
         }
+
         //TODO: implementar quando tiver a ProdutoDto simples
         [HttpGet]
         [Route("setores/detalhados")]
@@ -55,17 +58,21 @@ namespace ControlePlus_BackEnd.Controllers
                 .Include(s => s.Produtos)
                 .ToListAsync();
 
+                if (setores == null || !setores.Any())
+                {
+                    return NotFound("Não existem setores cadastrados.");
+                }
+
                 var setoresDTO = _mapper.Map<List<SetorDetalhadoDTO>>(setores);
 
                 return Ok(setoresDTO);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar Setores");
+                return StatusCode(500, ex);
             }
         }
-        
+
         //TODO: IMplementar DTO aqui
         [HttpGet("{id}")]
         public async Task<ActionResult<Setor>> GetSetorById(int id)
@@ -83,10 +90,10 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar dados");
+                return StatusCode(500, ex);
             }
         }
+
         //TODO: IMplementar DTO aqui
         [HttpGet("nome/{nome}")]
         public async Task<ActionResult<Setor>> GetSetorByName(string nome)
@@ -104,13 +111,13 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar dados");
+                return StatusCode(500, ex);
             }
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> NewSetor([FromBody] SetorPostDTO setorDTO)
+        public async Task<IActionResult> NewSetor([FromBody] SetorPostDTO setorPostDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -119,23 +126,27 @@ namespace ControlePlus_BackEnd.Controllers
 
             try
             {
-                var validacao = await _database.tb_setor.FirstOrDefaultAsync(s => s.Nome == setorDTO.Nome);
-                System.Console.WriteLine("Validação sendo feita...");
+                var validacao = await _database.tb_setor.FirstOrDefaultAsync(s => s.Nome == setorPostDTO.Nome);
+
                 if (validacao == null)
                 {
-                    var setor = _mapper.Map<Setor>(setorDTO);
+                    var setor = _mapper.Map<Setor>(setorPostDTO);
+
                     await _database.tb_setor.AddAsync(setor);
                     await _database.SaveChangesAsync();
-                    return CreatedAtAction(nameof(GetSetorByName), new { nome = setor.Nome }, setor);
+
+                    var setorDTO = _mapper.Map<SetorDTO>(setor);
+                    return CreatedAtAction(nameof(GetSetorByName), new { nome = setorDTO.Nome }, setor);
                 }
-                return BadRequest($"Já existe um setor com o nome {setorDTO.Nome}");
+
+                return BadRequest($"Já existe um setor com o nome {setorPostDTO.Nome}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao adicionar novo setor");
+                return StatusCode(500, ex);
             }
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> ModifySetor(int id, [FromBody] SetorUpdateDTO setorModificado)
@@ -144,6 +155,7 @@ namespace ControlePlus_BackEnd.Controllers
             {
                 return BadRequest(ModelState); //os erros message dos negocio
             }
+
             try
             {
                 var setor = await _database.tb_setor.FirstOrDefaultAsync(s => s.Id == id);
@@ -160,11 +172,11 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao modificar o setor");
+                return StatusCode(500, ex);
             }
 
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSetor(int id)
@@ -185,8 +197,7 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao deletar setor");
+                return StatusCode(500, ex);
             }
         }
 

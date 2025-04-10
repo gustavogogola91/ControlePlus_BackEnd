@@ -1,3 +1,4 @@
+using AutoMapper;
 using ControlePlus_BackEnd.db;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,15 +11,18 @@ namespace ControlePlus_BackEnd.Controllers
 {
     [ApiController]
     [Route("usuario")]
-
     public class UsuarioController : ControllerBase
     {
+
+        private readonly IMapper _mapper;
         private readonly AppDbContext _database;
 
-        public UsuarioController(AppDbContext database)
+        public UsuarioController(IMapper mapper, AppDbContext database)
         {
+            _mapper = mapper;
             _database = database;
         }
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetAll()
@@ -26,15 +30,20 @@ namespace ControlePlus_BackEnd.Controllers
             try
             {
                 var usuarios = await _database.tb_usuario.ToListAsync();
+
+                if (usuarios == null || !usuarios.Any())
+                {
+                    return NotFound("Não existem usuários cadastrados.");
+                }
+
                 return Ok(usuarios);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar usuários");
+                return StatusCode(500, ex);
             }
-
         }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Usuario>> GetUsuarioById(int id)
@@ -42,7 +51,8 @@ namespace ControlePlus_BackEnd.Controllers
             try
             {
                 var usuario = await _database.tb_usuario.FirstOrDefaultAsync(u => u.Id == id);
-                if (usuario != null){
+                if (usuario != null)
+                {
                     return Ok(usuario);
                 }
 
@@ -50,11 +60,10 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar dados");
+                return StatusCode(500, ex);
             }
         }
-        
+
 
         [HttpPost]
         public async Task<IActionResult> NewUsuario([FromBody] Usuario usuario)
@@ -74,17 +83,17 @@ namespace ControlePlus_BackEnd.Controllers
                     usuario.DataUltimaAtualizacao = DateTime.UtcNow;
                     _database.tb_usuario.Add(usuario);
                     await _database.SaveChangesAsync();
-                    // return CreatedAtAction(nameof(GetUsuarioById), new { nome = usuario.Nome }, usuario );
-                    return NoContent();
+                    return CreatedAtAction(nameof(GetUsuarioById), new { nome = usuario.Nome }, usuario );
+                    
                 }
                 return BadRequest($"Já existe um usuario com o Id {usuario.Id}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao adicionar novo usuario");
+                return StatusCode(500, ex);
             }
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> ModifyUser(int id, [FromBody] Usuario usuarioMod)
@@ -108,10 +117,10 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao modificar o Usuario");
+                return StatusCode(500, ex);
             }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUsuario(int id)
@@ -132,12 +141,8 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao deletar usuario");
+                return StatusCode(500, ex);
             }
         }
-
-
     }
-
 }

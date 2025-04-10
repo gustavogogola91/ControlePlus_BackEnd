@@ -27,15 +27,20 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var categorias = await _database.tb_categoria.Include(c => c.Produtos).ThenInclude(p => p.Setor).Include(c => c.Produtos).ThenInclude(p => p.Fornecedor).ToListAsync();
+                var categorias = await _database.tb_categoria.Include(c => c.Produtos).ThenInclude(p => p.Fornecedor)
+                    .Include(c => c.Produtos).ThenInclude(p => p.Setor).ToListAsync();
+
+                if (categorias == null || !categorias.Any())
+                {
+                    return NotFound("Não existem categorias cadastradas.");
+                }
 
                 var categoriasDto = _mapper.Map<List<CategoriaDTO>>(categorias);
                 return Ok(categoriasDto);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar categorias");
+                return StatusCode(500, ex);
             }
         }
 
@@ -45,7 +50,8 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var categoria = await _database.tb_categoria.Include(c => c.Produtos).ThenInclude(p => p.Setor).Include(c => c.Produtos).ThenInclude(p => p.Fornecedor).FirstOrDefaultAsync(c => c.Id == id);
+                var categoria = await _database.tb_categoria.Include(c => c.Produtos).ThenInclude(p => p.Setor)
+                    .Include(c => c.Produtos).ThenInclude(p => p.Fornecedor).FirstOrDefaultAsync(c => c.Id == id);
 
                 if (categoria != null)
                 {
@@ -57,10 +63,8 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar categorias");
+                return StatusCode(500, ex);
             }
-
         }
 
 
@@ -69,28 +73,27 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var categoria = await _database.tb_categoria.Include(c => c.Produtos).ThenInclude(p => p.Setor).Include(c => c.Produtos).ThenInclude(p => p.Fornecedor).FirstOrDefaultAsync(c => c.Nome == nome);
+                var categoria = await _database.tb_categoria.Include(c => c.Produtos).ThenInclude(p => p.Setor)
+                    .Include(c => c.Produtos).ThenInclude(p => p.Fornecedor).FirstOrDefaultAsync(c => c.Nome == nome);
 
                 if (categoria != null)
                 {
-                    var categoriaDto = _mapper.Map<List<CategoriaDTO>>(categoria);
+                    var categoriaDto = _mapper.Map<CategoriaDTO>(categoria);
                     return Ok(categoriaDto);
                 }
+
                 return NotFound($"Categoria {nome} não encontrada");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar categorias");
+                return StatusCode(500, ex);
             }
-
-
         }
 
-        [HttpPost]
-        public async Task<IActionResult> NewCategoria([FromBody] CategoriaPostDTO categoriaDTO)
-        {
 
+        [HttpPost]
+        public async Task<IActionResult> NewCategoria([FromBody] CategoriaPostDTO categoriaPostDTO)
+        {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -98,30 +101,31 @@ namespace ControlePlus_BackEnd.Controllers
 
             try
             {
-                var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoriaDTO.Nome);
+                var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoriaPostDTO.Nome);
 
                 if (validacao == null)
                 {
-                    var categoria = _mapper.Map<Categoria>(categoriaDTO);
-                    await _database.tb_categoria.AddAsync(categoria);
-                    await _database.SaveChangesAsync();
-                    var categoriaReturn = _mapper.Map<CategoriaDTO>(categoria);
+                    var categoria = _mapper.Map<Categoria>(categoriaPostDTO);
 
-                    return CreatedAtAction(nameof(GetCategoriaByName), new { nome = categoriaReturn.Nome }, categoriaReturn);
+                    _database.tb_categoria.Add(categoria);
+                    await _database.SaveChangesAsync();
+
+                    var categoriaDTO = _mapper.Map<CategoriaDTO>(categoria);
+                    return CreatedAtAction(nameof(GetCategoriaByName), new { nome = categoriaDTO.Nome }, categoriaDTO);
                 }
+
                 return BadRequest("Já existe uma categoria com este nome");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                return StatusCode(500, "Erro ao criar categoria");
+                return StatusCode(500, ex);
             }
 
         }
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> ModifyCategoria(int id, [FromBody] CategoriaDTO categoriaDTO)
+        public async Task<IActionResult> ModifyCategoria(int id, [FromBody] CategoriaPostDTO categoriaPostDTO)
         {
 
             try
@@ -130,27 +134,28 @@ namespace ControlePlus_BackEnd.Controllers
 
                 if (categoria != null)
                 {
+                    var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoriaPostDTO.Nome);
 
-                    var validacao = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Nome == categoriaDTO.Nome);
-
-                    if (validacao == null && categoriaDTO.Nome != null)
+                    if (validacao == null && categoriaPostDTO.Nome != null)
                     {
-                        categoria.Nome = categoriaDTO.Nome;
+                        categoria.Nome = categoriaPostDTO.Nome;
                         _database.tb_categoria.Update(categoria);
                         await _database.SaveChangesAsync();
-                        return NoContent();
+
+                        var categoriaDTO = _mapper.Map<CategoriaDTO>(categoria);
+                        return Ok(categoriaDTO);
 
                     }
-                    return BadRequest($"Já existe uma categoria com o nome {categoriaDTO.Nome}");
 
+                    return BadRequest($"Já existe uma categoria com o nome {categoriaPostDTO.Nome}");
                 }
+
                 return NotFound($"Categoria id {id} não encontrada");
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao alterar categoria");
+                return StatusCode(500, ex);
             }
         }
 
@@ -160,23 +165,21 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-
                 var categoria = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Id == id);
 
                 if (categoria != null)
                 {
                     _database.tb_categoria.Remove(categoria);
                     await _database.SaveChangesAsync();
-                    return Ok();
+
+                    return NoContent();
                 }
 
                 return NotFound($"Categoria id {id} não encontrada");
-
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao deletar categoria");
+                return StatusCode(500, ex);
             }
         }
     }
