@@ -25,7 +25,6 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpGet]
-        [Route("setores")]
         public async Task<ActionResult<IEnumerable<SetorDTO>>> GetAll()
         {
             try

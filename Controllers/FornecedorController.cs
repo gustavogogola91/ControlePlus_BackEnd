@@ -125,35 +125,26 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> ModifyFornecedor([FromBody] FornecedorPostDTO fornecedorModificado, int id)
+        public async Task<IActionResult> ModifyFornecedor(int id, [FromBody] FornecedorUpdateDTO fornecedorModificado)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
-                var fornecedor = await _database.tb_fornecedor.FindAsync(id);
+                var fornecedor = await _database.tb_fornecedor.FirstOrDefaultAsync(s => s.Id == id);
 
-                if (fornecedor != null)
+                if (fornecedor == null)
                 {
-                    if (fornecedorModificado.Nome != null)
-                    {
-                        fornecedor.Nome = fornecedorModificado.Nome;
-                    }
-                    if (fornecedorModificado.Endereco != null)
-                    {
-                        fornecedor.Endereco = fornecedorModificado.Endereco;
-                    }
-                    if (fornecedorModificado.Contato != null)
-                    {
-                        fornecedor.Contato = fornecedorModificado.Contato;
-                    }
-
-                    _database.tb_fornecedor.Update(fornecedor);
-                    await _database.SaveChangesAsync();
-
-                    var fornecedorDTO = _mapper.Map<FornecedorDTO>(fornecedor);
-                    return Ok(fornecedorDTO);
+                    return NotFound($"Fornecedor id {id} não encontrado.");
                 }
 
-                return NotFound($"Fornecedor id {id} não encontrado.");
+                _mapper.Map(fornecedorModificado, fornecedor);
+                await _database.SaveChangesAsync();
+                return Ok();
+
             }
             catch (Exception ex)
             {
