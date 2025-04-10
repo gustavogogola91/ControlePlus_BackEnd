@@ -1,4 +1,6 @@
+using AutoMapper;
 using ControlePlus_BackEnd.db;
+using ControlePlus_BackEnd.Dto;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +11,12 @@ namespace ControlePlus_BackEnd.Controllers
     [Route("fornecedor")]
     public class FornecedorController : ControllerBase
     {
+        private readonly IMapper _mapper;
         private readonly AppDbContext _database;
 
-        public FornecedorController(AppDbContext database)
+        public FornecedorController(IMapper mapper, AppDbContext database)
         {
+            _mapper = mapper;
             _database = database;
         }
 
@@ -21,9 +25,9 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var fornecedores = await _database.tb_fornecedor.ToListAsync();
-
-                return Ok(fornecedores);
+                var fornecedores = await _database.tb_fornecedor.Include(f => f.Produtos).ThenInclude(p => p.Setor).ToListAsync();
+                var fornecedoresDTO = _mapper.Map<List<FornecedorDTO>>(fornecedores);
+                return Ok(fornecedoresDTO);
             }
             catch (Exception ex)
             {
@@ -37,11 +41,12 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var fornecedor = await _database.tb_fornecedor.FindAsync(id);
+                var fornecedor = await _database.tb_fornecedor.Include(f => f.Produtos).ThenInclude(p => p.Setor).FirstOrDefaultAsync(f => f.Id == id);
 
                 if (fornecedor != null)
                 {
-                    return Ok(fornecedor);
+                    var fornecedorDTO = _mapper.Map<FornecedorDTO>(fornecedor);
+                    return Ok(fornecedorDTO);
                 }
 
                 return NotFound($"Erro ao buscar fornecedor id {id}");
@@ -58,11 +63,12 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var fornecedor = await _database.tb_fornecedor.FirstOrDefaultAsync(f => f.Nome == name);
+                var fornecedor = await _database.tb_fornecedor.Include(f => f.Produtos).ThenInclude(p => p.Setor).FirstOrDefaultAsync(f => f.Nome == name);
 
                 if (fornecedor != null)
                 {
-                    return Ok(fornecedor);
+                    var fornecedorDTO = _mapper.Map<FornecedorDTO>(fornecedor);
+                    return Ok(fornecedorDTO);
                 }
 
                 return NotFound($"Erro ao buscar fornecedor nome {name}");
@@ -75,17 +81,19 @@ namespace ControlePlus_BackEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> NewFornecedor([FromBody] Fornecedor fornecedor)
+        public async Task<IActionResult> NewFornecedor([FromBody] FornecedorPostDTO fornecedorDTO)
         {
             try
             {
-                var validation = await _database.tb_fornecedor.FirstOrDefaultAsync(f => f.Nome == fornecedor.Nome);
+                var validation = await _database.tb_fornecedor.FirstOrDefaultAsync(f => f.Nome == fornecedorDTO.Nome);
 
                 if (validation == null)
                 {
+                    var fornecedor = _mapper.Map<Fornecedor>(fornecedorDTO);
                     _database.tb_fornecedor.Add(fornecedor);
                     await _database.SaveChangesAsync();
-                    return Created();
+                    var fornecedorReturn = _mapper.Map<FornecedorDTO>(fornecedor);
+                    return CreatedAtAction(nameof(GetFornecedorByName), new { nome = fornecedorReturn.Nome }, fornecedorReturn);
                 }
                 return BadRequest($"Fornecedor {validation.Nome} já existe no banco de dados.");
             }
@@ -97,11 +105,11 @@ namespace ControlePlus_BackEnd.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> ModifyFornecedor([FromBody] Fornecedor fornecedorModificado, int id)
+        public async Task<IActionResult> ModifyFornecedor([FromBody] FornecedorPostDTO fornecedorModificado, int id)
         {
             try
             {
-                var fornecedor = await _database.tb_fornecedor.FindAsync();
+                var fornecedor = await _database.tb_fornecedor.FindAsync(id);
 
                 if (fornecedor != null)
                 {
