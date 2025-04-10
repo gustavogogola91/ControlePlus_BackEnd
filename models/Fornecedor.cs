@@ -14,7 +14,7 @@ namespace ControlePlus_BackEnd.models
         }
 
         [Key]
-        public int id { get; set; }
+        public int Id { get; set; }
 
         [Required(ErrorMessage = "Nome é obrigatório")]
         public string Nome { get; set; }
@@ -23,6 +23,6 @@ namespace ControlePlus_BackEnd.models
         public string Contato { get; set; }
         public string Endereco { get; set; }
 
-        public ICollection<Produto>? Produtos;
+        public ICollection<Produto>? Produtos { get; set;}
     }
 }

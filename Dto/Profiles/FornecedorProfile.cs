@@ -7,7 +7,8 @@ namespace ControlePlus_BackEnd.Dto.Profiles
     {
         public FornecedorProfile()
         {
-            // CreateMap<Fornecedor, FornecedorDTO>().ForMember(dest => dest.Produtos, opt => opt.MapFrom(src => src.Produtos));
+            CreateMap<Fornecedor, FornecedorDTO>().ForMember(dest => dest.Produtos, opt => opt.MapFrom(src => src.Produtos));
+            CreateMap<FornecedorPostDTO, Fornecedor>();
 
         }
     }
