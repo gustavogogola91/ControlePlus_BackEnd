@@ -45,9 +45,8 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        //TODO: implementar quando tiver a ProdutoDto simples
         [HttpGet]
-        [Route("setores/detalhados")]
+        [Route("setores/detalhados")] //TODO: arrumar rotas
         public async Task<ActionResult<IEnumerable<SetorDetalhadoDTO>>> GetAllDetailed()
         {
             try
@@ -114,7 +113,7 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-
+        
         [HttpPost]
         public async Task<IActionResult> NewSetor([FromBody] SetorPostDTO setorPostDTO)
         {
@@ -146,7 +145,7 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-
+        //TODO: implementar essa bomba
         [HttpPut("{id}")]
         public async Task<IActionResult> ModifySetor(int id, [FromBody] SetorUpdateDTO setorModificado)
         {
