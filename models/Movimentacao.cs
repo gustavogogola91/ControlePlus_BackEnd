@@ -7,7 +7,6 @@ namespace ControlePlus_BackEnd.models
     {
         public Movimentacao() { }
 
-        //TODO construtor
         [Key]
         public int Id { get; set; }
 

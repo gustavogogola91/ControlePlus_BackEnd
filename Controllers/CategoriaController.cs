@@ -55,7 +55,7 @@ namespace ControlePlus_BackEnd.Controllers
 
                 if (categoria != null)
                 {
-                    var categoriaDto = _mapper.Map<List<CategoriaDTO>>(categoria);
+                    var categoriaDto = _mapper.Map<CategoriaDTO>(categoria);
                     return Ok(categoriaDto);
                 }
 
@@ -127,7 +127,6 @@ namespace ControlePlus_BackEnd.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> ModifyCategoria(int id, [FromBody] CategoriaPostDTO categoriaPostDTO)
         {
-
             try
             {
                 var categoria = await _database.tb_categoria.FirstOrDefaultAsync(c => c.Id == id);
