@@ -125,6 +125,7 @@ namespace ControlePlus_BackEnd.Controllers
             try
             {
                 var movimentacao = _mapper.Map<Movimentacao>(movimentacaoPostDTO);
+                movimentacao.DataCriacao = DateTime.UtcNow;
 
                 _database.tb_movimentacao.Add(movimentacao);
                 await _database.SaveChangesAsync();
@@ -143,7 +144,8 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var movimentacao = await _database.tb_movimentacao.FirstOrDefaultAsync(m => m.Id == id);
+                var movimentacao = await _database.tb_movimentacao.Include(m => m.Usuario).Include(m => m.Produto).ThenInclude(p => p.Setor)
+                    .Include(m => m.Produto).ThenInclude(p => p.Fornecedor).FirstOrDefaultAsync(m => m.Id == id);
 
                 if (movimentacao != null)
                 {
@@ -156,8 +158,7 @@ namespace ControlePlus_BackEnd.Controllers
                     {
                         movimentacao.Quantidade = movimentacaoPutDTO.Quantidade;
                     }
-                    // TODO: Verificação de null está impedindo a alteração dos Tipo
-                    if (movimentacaoPutDTO.Tipo == null)
+                    if (movimentacaoPutDTO.Tipo != 0)
                     {
                         movimentacao.Tipo = movimentacaoPutDTO.Tipo;
                     }

@@ -5,7 +5,10 @@ namespace ControlePlus_BackEnd.models
 {
     public class Movimentacao
     {
-        public Movimentacao() { }
+        public Movimentacao()
+        {
+            DataCriacao = DateTime.UtcNow;
+        }
 
         [Key]
         public int Id { get; set; }
@@ -23,6 +26,7 @@ namespace ControlePlus_BackEnd.models
 
         [Required(ErrorMessage = "Tipo é obrigatória")]
         public TipoMov Tipo { get; set; }
+        public DateTime DataCriacao { get; set; }
         public string? Observacao { get; set; }
     }
 }
