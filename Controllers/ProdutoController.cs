@@ -1,3 +1,4 @@
+using AutoMapper;
 using ControlePlus_BackEnd.db;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,28 +10,37 @@ namespace ControlePlus_BackEnd.Controllers
     [Route("produto")]
     public class ProdutoController : ControllerBase
     {
+
+        private readonly IMapper _mapper;
         private readonly AppDbContext _database;
 
-        public ProdutoController(AppDbContext database)
+        public ProdutoController(IMapper mapper, AppDbContext database)
         {
+            _mapper = mapper;
             _database = database;
-        }        
+        }
+
 
         [HttpGet]
-
         public async Task<ActionResult<IEnumerable<Produto>>> GetAll()
         {
             try
             {
                 var produtos = await _database.tb_produto.ToListAsync();
+
+                if (produtos == null || !produtos.Any())
+                {
+                    return NotFound("Não existem produtos cadastrados.");
+                }
+
                 return Ok(produtos);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar produto");
+                return StatusCode(500, ex);
             }
         }
+
 
         [HttpGet("{Cod}")]
         public async Task<ActionResult<Produto>> GetProdutoById(int Cod)
@@ -38,7 +48,8 @@ namespace ControlePlus_BackEnd.Controllers
             try
             {
                 var produto = await _database.tb_produto.FirstOrDefaultAsync(p => p.Cod == Cod);
-                if (produto != null){
+                if (produto != null)
+                {
                     return Ok(produto);
                 }
 
@@ -46,8 +57,7 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar dados");
+                return StatusCode(500, ex);
             }
         }
 
@@ -66,18 +76,15 @@ namespace ControlePlus_BackEnd.Controllers
                 {
                     _database.tb_produto.Add(produto);
                     await _database.SaveChangesAsync();
-                    return NoContent();
+                    return CreatedAtAction(nameof(GetProdutoById), new { id = produto.Cod }, produto);
                 }
                 return BadRequest($"Já existe um produto com o Id {produto.Cod}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao adicionar novo produto");
+                return StatusCode(500, ex);
             }
         }
-
-
     }
 
 

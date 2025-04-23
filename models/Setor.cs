@@ -10,7 +10,11 @@ namespace ControlePlus_BackEnd.models
             UsuarioId = usuarioId;
         }
 
+        // [Key]
         public int Id { get; set; }
+
+        // [Required(ErrorMessage = "Este campo é obrigatório")]
+        // [MaxLength(75, ErrorMessage = "O nome precisa ter no máximo 75 caracteres")]
         public string Nome { get; set; }
         public int? UsuarioId { get; set; }
 

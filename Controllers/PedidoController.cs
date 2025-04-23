@@ -1,3 +1,4 @@
+using AutoMapper;
 using ControlePlus_BackEnd.db;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,16 @@ namespace ControlePlus_BackEnd.Controllers
     [Route("pedido")]
     public class PedidoController : ControllerBase
     {
+
+        private readonly IMapper _mapper;
         private readonly AppDbContext _database;
 
-        public PedidoController(AppDbContext database)
+        public PedidoController(IMapper mapper, AppDbContext database)
         {
+            _mapper = mapper;
             _database = database;
         }
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pedido>>> GetAll()
@@ -25,18 +30,24 @@ namespace ControlePlus_BackEnd.Controllers
             try
             {
                 var pedidos = await _database.tb_pedido.ToListAsync();
+
+                if (pedidos == null || !pedidos.Any())
+                {
+                    return BadRequest("Não existem pedidos cadastrados.");
+                }
+
                 return Ok(pedidos);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro aos buscar os pedidos");
+                return StatusCode(500, ex);
             }
 
         }
 
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Pedido>>> GetUsuarioById(int id)
+        public async Task<ActionResult<Pedido>> GetUsuarioById(int id)
         {
             try
             {
@@ -50,11 +61,11 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao buscar o pedidos");
+                return StatusCode(500, ex);
             }
 
         }
+
 
         [HttpPost]
         public async Task<IActionResult> NewPedido([FromBody] Pedido pedido)
@@ -79,10 +90,10 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao adicionar novo pedido");
+                return StatusCode(500, ex);
             }
         }
+
 
         // [HttpPut("{id}")]
         // public async Task<IActionResult> ModifyPedido(int id, [FromBody] Pedido pedidoMod)
@@ -106,15 +117,14 @@ namespace ControlePlus_BackEnd.Controllers
         //     }
         //     catch (Exception ex)
         //     {
-        //         Console.WriteLine(ex);
-        //         return StatusCode(500, "Erro ao modificar o Usuario");
+        //         return StatusCode(500, ex);
         //     }
         // }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePedido(int id)
         {
-
             try
             {
                 var pedido = await _database.tb_pedido.FirstOrDefaultAsync(p => p.Id == id);
@@ -130,14 +140,8 @@ namespace ControlePlus_BackEnd.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                return StatusCode(500, "Erro ao deletar pedido");
+                return StatusCode(500, ex);
             }
         }
-
-
-    
-
-
     }
 }

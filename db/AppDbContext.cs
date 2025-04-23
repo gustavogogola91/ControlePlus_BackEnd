@@ -30,6 +30,8 @@ namespace ControlePlus_BackEnd.db
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.HasPostgresEnum<Role>();
+            modelBuilder.HasPostgresEnum<Status>();
+            modelBuilder.HasPostgresEnum<TipoMov>();
 
             modelBuilder.Entity<Setor>()
                 .HasOne(s => s.Responsavel)

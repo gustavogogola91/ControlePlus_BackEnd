@@ -29,10 +29,10 @@ namespace ControlePlus_BackEnd.models
         public int SetorId { get; set; }
         public Setor? Setor { get; set; }
         public string Senha { get; set; }
-        public Role Roles { get; set; } //TODO decidir o tipo do role
+        public Role Roles { get; set; }
         public bool Ativo { get; set; }
-        public DateTime? DataCriacao { get; set; }
-        public DateTime? DataUltimaAtualizacao { get; set; }
+        public DateTime DataCriacao { get; set; }
+        public DateTime DataUltimaAtualizacao { get; set; }
         public int? UsuarioId { get; set; }
         public Usuario? ReponsavelUltimaAtualizacao { get; set; }
     }
