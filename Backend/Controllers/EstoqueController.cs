@@ -111,7 +111,7 @@ namespace ControlePlus_BackEnd.Controllers
                     await _database.SaveChangesAsync();
 
                     var estoqueDto = _mapper.Map<EstoqueDTO>(estoque);
-                    return CreatedAtAction(nameof(GetEstoqueByProdutoId), new {id = estoque.ProdutoId}, estoqueDto);
+                    return Created("Criado com sucesso", estoqueDto);
                 }
 
                 var produto = await _database.tb_produto.FindAsync(estoquePostDto.ProdutoId);

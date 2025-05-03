@@ -158,7 +158,7 @@ namespace ControlePlus_BackEnd.Controllers
                 usuario.Ativo = true;
                 _database.tb_usuario.Add(usuario);
                 await _database.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetUsuarioByUsername), new { username = usuario.Username }, usuario);
+                return Created("Criado com sucesso", usuario);
             }
             catch (Exception ex)
             {

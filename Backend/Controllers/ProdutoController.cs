@@ -1,4 +1,5 @@
 using AutoMapper;
+using Backend.services;
 using ControlePlus_BackEnd.db;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,13 @@ namespace ControlePlus_BackEnd.Controllers
 
         private readonly IMapper _mapper;
         private readonly AppDbContext _database;
+        private readonly IEstoqueService _estoqueService;
 
-        public ProdutoController(IMapper mapper, AppDbContext database)
+        public ProdutoController(IMapper mapper, AppDbContext database, IEstoqueService estoqueService)
         {
             _mapper = mapper;
             _database = database;
+            _estoqueService = estoqueService;
         }
 
 
@@ -75,8 +78,9 @@ namespace ControlePlus_BackEnd.Controllers
                 if (validacao == null)
                 {
                     _database.tb_produto.Add(produto);
+                    await _estoqueService.CriarEstoque(produto.Cod!);
                     await _database.SaveChangesAsync();
-                    return CreatedAtAction(nameof(GetProdutoById), new { id = produto.Cod }, produto);
+                    return Created("Criado com sucesso", produto);
                 }
                 return BadRequest($"Já existe um produto com o Id {produto.Cod}");
             }

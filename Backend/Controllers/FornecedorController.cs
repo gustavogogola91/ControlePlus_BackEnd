@@ -112,7 +112,7 @@ namespace ControlePlus_BackEnd.Controllers
                     await _database.SaveChangesAsync();
 
                     var fornecedorReturn = _mapper.Map<FornecedorDTO>(fornecedor);
-                    return CreatedAtAction(nameof(GetFornecedorByName), new { nome = fornecedorReturn.Nome }, fornecedorReturn);
+                    return Created("Criado com sucesso", fornecedorReturn);
                 }
 
                 return BadRequest($"Fornecedor {validation.Nome} já existe no banco de dados.");

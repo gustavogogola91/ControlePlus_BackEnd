@@ -1,4 +1,5 @@
 using AutoMapper;
+using Backend.services;
 using ControlePlus_BackEnd.db;
 using ControlePlus_BackEnd.Dto;
 using ControlePlus_BackEnd.models;
@@ -14,11 +15,13 @@ namespace ControlePlus_BackEnd.Controllers
 
         private readonly IMapper _mapper;
         private readonly AppDbContext _database;
+        private readonly IEstoqueService _estoqueService;
 
-        public MovimentacaoController(IMapper mapper, AppDbContext database)
+        public MovimentacaoController(IMapper mapper, AppDbContext database, IEstoqueService estoqueService)
         {
             _mapper = mapper;
             _database = database;
+            _estoqueService = estoqueService;
         }
 
 
@@ -127,11 +130,13 @@ namespace ControlePlus_BackEnd.Controllers
                 var movimentacao = _mapper.Map<Movimentacao>(movimentacaoPostDTO);
                 movimentacao.DataCriacao = DateTime.UtcNow;
 
+                await _estoqueService.AlterarEstoque(movimentacao.ProdutoId, movimentacao.Quantidade, movimentacao.Tipo);
+
                 _database.tb_movimentacao.Add(movimentacao);
                 await _database.SaveChangesAsync();
 
                 var movimentacaoDTO = _mapper.Map<MovimentacaoDTO>(movimentacao);
-                return CreatedAtAction(nameof(GetMovimentacaoById), new { id = movimentacao.Id }, movimentacaoDTO);
+                return Created("Criado com sucesso", movimentacaoDTO);
             }
             catch (Exception ex)
             {

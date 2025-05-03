@@ -1,9 +1,9 @@
 using System.Text.Json.Serialization;
+using Backend.services;
 using ControlePlus_BackEnd.db;
 using Microsoft.EntityFrameworkCore;
-var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
@@ -13,6 +13,10 @@ var connectionString = builder.Configuration.GetConnectionString("DbConnectionSt
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
+builder.Services.AddScoped<IEstoqueService, EstoqueService>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.Services
     .AddControllers()
@@ -24,7 +28,11 @@ builder.Services
 
 var app = builder.Build();
 
-// app.UseHttpsRedirection(); não estou utilizando o HTTPS agora por motivos de segurança
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseAuthorization();
 

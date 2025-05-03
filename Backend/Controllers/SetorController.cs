@@ -134,7 +134,7 @@ namespace ControlePlus_BackEnd.Controllers
                     await _database.SaveChangesAsync();
 
                     var setorDTO = _mapper.Map<SetorDTO>(setor);
-                    return CreatedAtAction(nameof(GetSetorByName), new { nome = setorDTO.Nome }, setor);
+                    return Created("Criado com sucesso", setor);
                 }
 
                 return BadRequest($"Já existe um setor com o nome {setorPostDTO.Nome}");

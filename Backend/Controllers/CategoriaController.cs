@@ -111,7 +111,7 @@ namespace ControlePlus_BackEnd.Controllers
                     await _database.SaveChangesAsync();
 
                     var categoriaDTO = _mapper.Map<CategoriaDTO>(categoria);
-                    return CreatedAtAction(nameof(GetCategoriaByName), new { nome = categoriaDTO.Nome }, categoriaDTO);
+                    return Created("Criado com sucesso", categoriaDTO);
                 }
 
                 return BadRequest("Já existe uma categoria com este nome");
