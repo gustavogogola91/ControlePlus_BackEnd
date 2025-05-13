@@ -13,18 +13,18 @@ export default function home() {
 
 
     return (
-        <div className="flex">
+        <div className="flex justify-between">
             <aside>
                 <DashboardSideNavigation
                     activeComponent={activeComponent}
                     setActiveComponent={setActiveComponent}
                 />
             </aside>
-            <main>
+            <div>
                 {activeComponent === "dashboard" && dashboard() }
                 {activeComponent === "relatorios" && relatorios() }
                 {activeComponent === "historico" && historico() }
-            </main>
+            </div>
         </div>
     )
 }

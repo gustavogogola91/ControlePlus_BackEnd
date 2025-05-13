@@ -1,5 +1,6 @@
 "use client"
 
+import { Calendar, House, Clipboard } from "lucide-react";
 import { Component, FC, useEffect, useState } from "react"
 
 interface SideNavigationsProps {
@@ -7,24 +8,33 @@ interface SideNavigationsProps {
     setActiveComponent: (component: string) => void;
 }
 
-export const DashboardSideNavigation: FC<SideNavigationsProps> = ({ activeComponent, setActiveComponent }) => {
+export const DashboardSideNavigation: FC<SideNavigationsProps> = ({ activeComponent, setActiveComponent }) => (
+    <>
+        <nav className="flex flex-col w-full gap-10 m-10">
+            <button
+                className={`
+                        flex gap-2 items-center px-2 pt-2 pb-1 font-semibold
+                        ${activeComponent == 'dashboard' ? "text-blue bg-dark-gray rounded-[10px]" : "text-black "}
+                    `}
 
-    return (
-        <>
-            <nav className="flex flex-col gap-10 m-10">
-                <button
-                    className={activeComponent == 'dashboard' ? "text-blue" : "text-red"}
-                    onClick={() => setActiveComponent('dashboard')}
-                >Dashboard</button>
-                <button
-                    className={activeComponent == 'relatorios' ? "text-blue" : "text-red"}
-                    onClick={() => setActiveComponent('relatorios')}
-                >Relatórios</button>
-                <button
-                    className={activeComponent == 'historico' ? "text-blue" : "text-red"}
-                    onClick={() => setActiveComponent('historico')}
-                >Histórico</button>
-            </nav>
-        </>
-    )
-}
+                onClick={() => setActiveComponent('dashboard')}
+            > <House className="inline mb-1" /> Dashboard</button>
+            <button
+                className={`
+                        flex gap-2 items-center px-2 pt-2 pb-1 font-semibold
+                        ${activeComponent == 'relatorios' ? "text-blue bg-dark-gray rounded-[10px]" : "text-black "}
+                    `}
+
+                onClick={() => setActiveComponent('relatorios')}
+            ><Clipboard className="inline mb-1" /> Relatórios</button>
+            <button
+                className={`
+                        flex gap-2 items-center px-2 pt-2 pb-1 font-semibold
+                        ${activeComponent == 'historico' ? "text-blue bg-dark-gray rounded-[10px]" : "text-black "}
+                    `}
+
+                onClick={() => setActiveComponent('historico')}
+            ><Calendar className="inline mb-1" /> Histórico</button>
+        </nav>
+    </>
+)

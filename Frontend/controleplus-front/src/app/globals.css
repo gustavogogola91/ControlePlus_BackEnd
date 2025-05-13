@@ -4,7 +4,7 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  --black-card: #1E1E1E;
+  --color-dark-gray: #1E1E1E;
 
   --color-blue: #32ADE6;
   --color-red: #FF3B30;
@@ -29,6 +29,7 @@
   --color-blue: var(--color-blue);
   --color-orange: var(--color-orange);
   --color-gray: var(--color-gray);
+   --color-dark-gray: var( --color-dark-gray);
 }
 
 
