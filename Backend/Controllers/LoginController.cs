@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
 using Backend.Dto;
 using Backend.services;
 using ControlePlus_BackEnd.db;
@@ -15,14 +16,16 @@ namespace Backend.Controllers
     public class LoginController : ControllerBase
     {
         private readonly AppDbContext _database;
-        private readonly IConfiguration _config;
         private readonly IEncryptService _hasher;
+        private readonly IMapper _mapper;
+        private readonly IJwtService _jwt;
 
-        public LoginController(AppDbContext database, IConfiguration config, IEncryptService hasher)
+        public LoginController(AppDbContext database, IEncryptService hasher, IMapper mapper, IJwtService jwt)
         {
             _database = database;
-            _config = config;
             _hasher = hasher;
+            _mapper = mapper;
+            _jwt = jwt;
         }
 
         [HttpPost]
@@ -36,19 +39,10 @@ namespace Backend.Controllers
             var user = await _database.tb_usuario.FirstOrDefaultAsync(u => u.Username == login.Username);
             if (user != null && _hasher.VerificarSenha(login.Senha!, user.Senha))
             {
-                var authClaims = new List<Claim> {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Nome!),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(ClaimTypes.Role, user.Roles.ToString()),
-                };
+                var userJwt = _mapper.Map<JwtDTO>(user);
+                var token = _jwt.GenerateJWT(userJwt);
 
-                var token = new JwtSecurityToken(
-                    issuer: _config["Jwt:Issuer"],
-                    expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpirationMinutes"]!)),
-                    claims: authClaims,
-                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)), SecurityAlgorithms.HmacSha256)
-                );
-                return Ok(new { Token = new JwtSecurityTokenHandler().WriteToken(token) });
+                return Ok(new { Token = token });
             }
             return Unauthorized();
         }
