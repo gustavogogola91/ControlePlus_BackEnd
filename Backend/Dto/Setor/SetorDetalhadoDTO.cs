@@ -6,11 +6,11 @@ namespace ControlePlus_BackEnd.Dto
     {
         public int Id { get; set; }
         public string? Nome { get; set; }
-        public int? UsuarioId { get; set; }
+        public UsuarioDTO? Usuario { get; set; }
 
-        public List<UsuarioDTO> Usuarios {get; set;} = [];
+        public ICollection<UsuarioDTO>? Usuarios {get; set;}
 
-        public List<ProdutoResumidoDTO> Produtos {get;set;} = [];
+        public ICollection<ProdutoResumidoDTO>? Produtos {get;set;}
 
     }
 }

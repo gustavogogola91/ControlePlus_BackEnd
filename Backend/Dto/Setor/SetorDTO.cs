@@ -4,7 +4,7 @@ namespace ControlePlus_BackEnd.Dto
     {
         public int Id { get; set; }
         public string? Nome { get; set; }
-        public int? UsuarioId { get; set; }
+        public UsuarioDTO? Responsavel { get; set; }
         
     }
 }

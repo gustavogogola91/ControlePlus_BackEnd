@@ -5,8 +5,6 @@ using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-//TODO: implementar DTOs nos metodos, PUT e GETid
-//TODO: Fazer uma requisição de setores simples
 namespace ControlePlus_BackEnd.Controllers
 {
     [ApiController]
@@ -29,7 +27,7 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var setores = await _database.tb_setor.Include(s => s.Usuarios).ToListAsync();
+                var setores = await _database.tb_setor.Include(s => s.Responsavel).ToListAsync();
 
                 if (setores == null || !setores.Any())
                 {
@@ -45,13 +43,13 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("setores/detalhados")] //TODO: arrumar rotas
+        [HttpGet("detalhado")]
         public async Task<ActionResult<IEnumerable<SetorDetalhadoDTO>>> GetAllDetailed()
         {
             try
             {
                 var setores = await _database.tb_setor
+                .Include(s => s.Responsavel)
                 .Include(s => s.Usuarios)
                 .Include(s => s.Produtos)
                 .ToListAsync();
@@ -71,20 +69,21 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        //TODO: IMplementar DTO aqui
         [HttpGet("{id}")]
         public async Task<ActionResult<Setor>> GetSetorById(int id)
         {
             try
             {
-                var setor = await _database.tb_setor.FirstOrDefaultAsync(s => s.Id == id);
+                var setor = await _database.tb_setor.Include(s => s.Responsavel).FirstOrDefaultAsync(s => s.Id == id);
 
-                if (setor != null)
+                if (setor == null)
                 {
-                    return Ok(setor);
+                    return NotFound($"Setor id {id} não encontrado");
                 }
 
-                return NotFound($"Setor id {id} não encontrado");
+                var setorDTO = _mapper.Map<SetorDTO>(setor);
+                return Ok(setorDTO);
+
             }
             catch (Exception ex)
             {
@@ -92,20 +91,24 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        //TODO: IMplementar DTO aqui
         [HttpGet("nome/{nome}")]
-        public async Task<ActionResult<Setor>> GetSetorByName(string nome)
+        public async Task<ActionResult<SetorDetalhadoDTO>> GetSetorByName(string nome)
         {
             try
             {
-                var setor = await _database.tb_setor.FirstOrDefaultAsync(s => s.Nome == nome);
+                var setor = await _database.tb_setor
+                .Include(s => s.Responsavel)
+                .Include(s => s.Usuarios)
+                .Include(s => s.Produtos)
+                .FirstOrDefaultAsync(s => s.Nome == nome);
 
                 if (setor != null)
                 {
-                    return Ok(setor);
+                    return NotFound($"Setor {nome} não encontrado");
                 }
 
-                return NotFound($"Setor {nome} não encontrado");
+                var setorDTO = _mapper.Map<SetorDetalhadoDTO>(setor);
+                return Ok(setorDTO);
             }
             catch (Exception ex)
             {
@@ -113,7 +116,7 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        
+
         [HttpPost]
         public async Task<IActionResult> NewSetor([FromBody] SetorPostDTO setorPostDTO)
         {
@@ -130,7 +133,7 @@ namespace ControlePlus_BackEnd.Controllers
                 {
                     var setor = _mapper.Map<Setor>(setorPostDTO);
 
-                    await _database.tb_setor.AddAsync(setor);
+                    _database.tb_setor.Add(setor);
                     await _database.SaveChangesAsync();
 
                     var setorDTO = _mapper.Map<SetorDTO>(setor);
@@ -145,13 +148,12 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        //TODO: implementar essa bomba
         [HttpPut("{id}")]
         public async Task<IActionResult> ModifySetor(int id, [FromBody] SetorUpdateDTO setorModificado)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState); //os erros message dos negocio
+                return BadRequest(ModelState);
             }
 
             try
@@ -163,8 +165,16 @@ namespace ControlePlus_BackEnd.Controllers
                     return NotFound($"Setor id {id} não encontrado");
                 }
 
-                _mapper.Map(setorModificado, setor);
+                if(setorModificado.Nome == null) {
+                    setor.Nome = setorModificado.Nome!;
+                }
+                if(setorModificado.UsuarioId == null && _database.tb_usuario.Any(u => u.Id == setorModificado.UsuarioId)) {
+                    setor.UsuarioId = setorModificado.UsuarioId!;
+                }
 
+                setor.UsuarioId = setorModificado.UsuarioId!;
+
+                _database.tb_setor.Update(setor);
                 await _database.SaveChangesAsync();
                 return NoContent();
             }
