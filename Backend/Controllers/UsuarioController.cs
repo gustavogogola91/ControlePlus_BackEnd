@@ -1,4 +1,5 @@
 using AutoMapper;
+using Backend.services;
 using ControlePlus_BackEnd.db;
 using ControlePlus_BackEnd.Dto;
 using ControlePlus_BackEnd.models;
@@ -17,11 +18,13 @@ namespace ControlePlus_BackEnd.Controllers
 
         private readonly IMapper _mapper;
         private readonly AppDbContext _database;
+        private readonly IEncryptService _hasher;
 
-        public UsuarioController(IMapper mapper, AppDbContext database)
+        public UsuarioController(IMapper mapper, AppDbContext database, IEncryptService hasher)
         {
             _mapper = mapper;
             _database = database;
+            _hasher = hasher;
         }
 
 
@@ -156,6 +159,7 @@ namespace ControlePlus_BackEnd.Controllers
                 usuario.DataCriacao = DateTime.UtcNow;
                 usuario.DataUltimaAtualizacao = DateTime.UtcNow;
                 usuario.Ativo = true;
+                usuario.Senha = _hasher.HashSenha(usuario.Senha);
                 _database.tb_usuario.Add(usuario);
                 await _database.SaveChangesAsync();
                 return Created("Criado com sucesso", usuario);

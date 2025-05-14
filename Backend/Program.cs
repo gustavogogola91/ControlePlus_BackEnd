@@ -17,6 +17,7 @@ var connectionString = builder.Configuration.GetConnectionString("DbConnectionSt
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IEstoqueService, EstoqueService>();
+builder.Services.AddScoped<IEncryptService, EncryptService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

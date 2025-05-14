@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Backend.Dto;
+using Backend.services;
 using ControlePlus_BackEnd.db;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,11 +16,13 @@ namespace Backend.Controllers
     {
         private readonly AppDbContext _database;
         private readonly IConfiguration _config;
+        private readonly IEncryptService _hasher;
 
-        public LoginController(AppDbContext database, IConfiguration config)
+        public LoginController(AppDbContext database, IConfiguration config, IEncryptService hasher)
         {
             _database = database;
             _config = config;
+            _hasher = hasher;
         }
 
         [HttpPost]
@@ -31,7 +34,7 @@ namespace Backend.Controllers
             }
 
             var user = await _database.tb_usuario.FirstOrDefaultAsync(u => u.Username == login.Username);
-            if (user != null /*&& implementar hash e verificação*/)
+            if (user != null && _hasher.VerificarSenha(login.Senha!, user.Senha))
             {
                 var authClaims = new List<Claim> {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Nome!),
