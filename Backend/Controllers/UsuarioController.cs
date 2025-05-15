@@ -94,16 +94,16 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        [HttpGet("/username/{username}")]
-        public async Task<ActionResult<UsuarioDetalhadoDTO>> GetUsuarioByUsername(string username)
+        [HttpGet("detalhado/{id}")]
+        public async Task<ActionResult<UsuarioDTO>> GetUsuarioDetailedById(int id)
         {
             try
             {
-                var usuario = await _database.tb_usuario.FirstOrDefaultAsync(u => u.Username == username);
+                var usuario = await _database.tb_usuario.FirstOrDefaultAsync(u => u.Id == id);
 
                 if (usuario == null)
                 {
-                    return NotFound($"Usuário username {username} não está cadastrado.");
+                    return NotFound($"Usuário id {id} não está cadastrado.");
                 }
 
                 var usuarioDTO = _mapper.Map<UsuarioDetalhadoDTO>(usuario);
@@ -115,17 +115,16 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-
-        [HttpGet("{id}/detalhado")]
-        public async Task<ActionResult<UsuarioDTO>> GetUsuarioDetailedById(int id)
+        [HttpGet("username/{username}")]
+        public async Task<ActionResult<UsuarioDetalhadoDTO>> GetUsuarioByUsername(string username)
         {
             try
             {
-                var usuario = await _database.tb_usuario.FirstOrDefaultAsync(u => u.Id == id);
+                var usuario = await _database.tb_usuario.FirstOrDefaultAsync(u => u.Username == username);
 
                 if (usuario == null)
                 {
-                    return NotFound($"Usuário id {id} não está cadastrado.");
+                    return NotFound($"Usuário username {username} não está cadastrado.");
                 }
 
                 var usuarioDTO = _mapper.Map<UsuarioDetalhadoDTO>(usuario);
@@ -189,8 +188,25 @@ namespace ControlePlus_BackEnd.Controllers
                     return NotFound($"Setor id {id} não encontrado");
                 }
 
-                _mapper.Map(usuarioMod, usuarioExistente);
+                if (usuarioMod.Username != null)
+                {
+                    usuarioExistente.Username = usuarioMod.Username;
+                }
+                if (usuarioMod.Nome != null)
+                {
+                    usuarioExistente.Nome = usuarioMod.Nome;
+                }
+                if (usuarioMod.SetorId != 0)
+                {
+                    usuarioExistente.SetorId = usuarioMod.SetorId;
+                }
+                if (usuarioMod.Senha != null)
+                {
+                    usuarioExistente.Senha = _hasher.HashSenha(usuarioMod.Senha);
+                }
+                usuarioExistente.UsuarioId = usuarioMod.UsuarioId;
 
+                _database.tb_usuario.Update(usuarioExistente);
                 await _database.SaveChangesAsync();
                 return NoContent();
             }
