@@ -28,7 +28,7 @@ export const Header = () => {
 
 
     return (
-        <header className="w-full flex justify-between px10 border-b-gray">
+        <header className="w-full flex justify-between p-5 border-b-gray">
             <h1 className="font-semibold text-[32px]">Controle <span className="text-blue ">+</span></h1>
             <nav>
 

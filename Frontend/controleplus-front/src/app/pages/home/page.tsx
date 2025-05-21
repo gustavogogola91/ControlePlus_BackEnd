@@ -13,14 +13,14 @@ export default function home() {
 
 
     return (
-        <div className="flex justify-between">
-            <aside>
+        <div className="flex">
+            <aside className="abslute left-0">
                 <DashboardSideNavigation
                     activeComponent={activeComponent}
                     setActiveComponent={setActiveComponent}
                 />
             </aside>
-            <div>
+            <div className="flex mx-auto">
                 {activeComponent === "dashboard" && dashboard() }
                 {activeComponent === "relatorios" && relatorios() }
                 {activeComponent === "historico" && historico() }
