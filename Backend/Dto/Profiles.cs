@@ -31,12 +31,12 @@ namespace Backend.Dto
                 TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo")).ToString("dd/MM/yyyy HH:mm")));
             CreateMap<MovimentacaoPostDTO, Movimentacao>();
 
-            CreateMap<Produto, ProdutoCompletoDTO>()
+            CreateMap<Produto, ProdutoDTO>()
             .ForMember(dest => dest.FornecedorNome, opt => opt.MapFrom(src => src.Fornecedor != null ? src.Fornecedor.Nome : null))
-            .ForMember(dest => dest.SetorNome, opt => opt.MapFrom(src => src.Setor != null ? src.Setor.Nome : null));
-            CreateMap<Produto, ProdutoResumidoDTO>()
             .ForMember(dest => dest.SetorNome, opt => opt.MapFrom(src => src.Setor != null ? src.Setor.Nome : null))
-            .ForMember(dest => dest.FornecedorNome, opt => opt.MapFrom(src => src.Fornecedor != null ? src.Fornecedor.Nome : null));
+            .ForMember(dest => dest.CategoriaNome, opt => opt.MapFrom(src => src.Categoria != null ? src.Categoria.Nome : null));
+            
+            CreateMap<ProdutoPostDTO, Produto>();
 
             CreateMap<SetorPostDTO, Setor>()
             .ForMember(dest => dest.UsuarioId, opt => opt.Ignore())
@@ -61,7 +61,6 @@ namespace Backend.Dto
 
             CreateMap<UsuarioPostDTO, Usuario>()
             .ForMember(dest => dest.UsuarioId, opt => opt.Ignore());
-
 
             CreateMap<UsuarioUpdateDTO, Usuario>()
             .ForMember(dest => dest.Username, opt => opt.Condition(src => src.Username != null))

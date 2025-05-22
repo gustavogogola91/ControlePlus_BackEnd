@@ -10,7 +10,7 @@ namespace ControlePlus_BackEnd.Dto
 
         public ICollection<UsuarioDTO>? Usuarios {get; set;}
 
-        public ICollection<ProdutoResumidoDTO>? Produtos {get;set;}
+        public ICollection<ProdutoDTO>? Produtos {get;set;}
 
     }
 }

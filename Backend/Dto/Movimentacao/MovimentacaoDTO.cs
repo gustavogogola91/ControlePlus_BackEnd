@@ -6,7 +6,7 @@ namespace ControlePlus_BackEnd.Dto
     {
         public int Id { get; set; }
         public UsuarioDTO? Usuario { get; set; }
-        public ProdutoResumidoDTO? Produto { get; set; }
+        public ProdutoDTO? Produto { get; set; }
         public int Quantidade { get; set; }
         public TipoMov Tipo { get; set; }
         public string? DataCriacao { get; set; }
