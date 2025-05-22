@@ -6,9 +6,6 @@ using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-//TODO: Implementar um requisição simples e uma detalhada
-//TODO: Implementar DTOs nos metodos GET, PUT e POST
-
 namespace ControlePlus_BackEnd.Controllers
 {
     [ApiController]
@@ -169,7 +166,6 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        //TODO: implementar essa bomba
         [HttpPut("{id}")]
         public async Task<IActionResult> ModifyUser(int id, [FromBody] UsuarioUpdateDTO usuarioMod)
         {

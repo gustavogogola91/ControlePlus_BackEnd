@@ -35,7 +35,7 @@ namespace Backend.Dto
             .ForMember(dest => dest.FornecedorNome, opt => opt.MapFrom(src => src.Fornecedor != null ? src.Fornecedor.Nome : null))
             .ForMember(dest => dest.SetorNome, opt => opt.MapFrom(src => src.Setor != null ? src.Setor.Nome : null))
             .ForMember(dest => dest.CategoriaNome, opt => opt.MapFrom(src => src.Categoria != null ? src.Categoria.Nome : null));
-            
+
             CreateMap<ProdutoPostDTO, Produto>();
 
             CreateMap<SetorPostDTO, Setor>()
@@ -71,6 +71,9 @@ namespace Backend.Dto
             .ForMember(dest => dest.UsuarioId, opt => opt.Condition(src => src.UsuarioId != null));
 
             CreateMap<Usuario, JwtDTO>();
+
+            CreateMap<Pedido, PedidoDTO>();
+            CreateMap<PedidoPostDTO, Pedido>();
         }
     }
 }

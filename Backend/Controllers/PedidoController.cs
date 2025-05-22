@@ -1,5 +1,7 @@
 using AutoMapper;
+using Backend.Dto;
 using ControlePlus_BackEnd.db;
+using ControlePlus_BackEnd.Dto;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,18 +27,20 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Pedido>>> GetAll()
+        public async Task<ActionResult<IEnumerable<PedidoDTO>>> GetAll()
         {
             try
             {
-                var pedidos = await _database.tb_pedido.ToListAsync();
+                var pedidos = await _database.tb_pedido.Include(p => p.Produtos).ToListAsync();
 
                 if (pedidos == null || !pedidos.Any())
                 {
                     return BadRequest("Não existem pedidos cadastrados.");
                 }
 
-                return Ok(pedidos);
+                var pedidosDTO = _mapper.Map<List<PedidoDTO>>(pedidos);
+
+                return Ok(pedidosDTO);
             }
             catch (Exception ex)
             {
@@ -47,17 +51,18 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Pedido>> GetUsuarioById(int id)
+        public async Task<ActionResult<PedidoDTO>> GetUsuarioById(int id)
         {
             try
             {
                 var pedido = await _database.tb_pedido.FirstOrDefaultAsync(p => p.Id == id);
-                if (pedido != null)
+                if (pedido == null)
                 {
-                    return Ok(pedido);
+                    return NotFound($"Pedido id {id} não encontrado");
                 }
 
-                return NotFound($"Pedido id {id} não encontrado");
+                var pedidoDTO = _mapper.Map<ProdutoDTO>(pedido);
+                return Ok(pedidoDTO);
             }
             catch (Exception ex)
             {
@@ -68,7 +73,7 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> NewPedido([FromBody] Pedido pedido)
+        public async Task<IActionResult> NewPedido([FromBody] PedidoPostDTO dto)
         {
             if (!ModelState.IsValid)
             {
@@ -77,16 +82,15 @@ namespace ControlePlus_BackEnd.Controllers
 
             try
             {
-                var validacao = await _database.tb_usuario.FirstOrDefaultAsync(p => p.Id == pedido.Id);
-                if (validacao == null)
-                {
+                var pedido = _mapper.Map<Pedido>(dto);
+                pedido.DataPedido = DateTime.UtcNow;
 
-                    // pedido.DataCriacao = DateTime.UtcNow;
-                    _database.tb_pedido.Add(pedido);
-                    await _database.SaveChangesAsync();
-                    return NoContent();
-                }
-                return BadRequest($"Já existe um pedido com o Id {pedido.Id}");
+                _database.tb_pedido.Add(pedido);
+                await _database.SaveChangesAsync();
+
+                var pedidoDTO = _mapper.Map<PedidoDTO>(pedido);
+
+                return Created("", pedidoDTO);
             }
             catch (Exception ex)
             {
@@ -95,31 +99,45 @@ namespace ControlePlus_BackEnd.Controllers
         }
 
 
-        // [HttpPut("{id}")]
-        // public async Task<IActionResult> ModifyPedido(int id, [FromBody] Pedido pedidoMod)
-        // {
-        //     try
-        //     {
-        //         var pedidoExistente = await _database.tb_usuario.FindAsync(id);
-        //         if (pedidoExistente != null)
-        //         {
-        //             pedidoExistente.Nome = pedidoMod.Nome;
-        //             pedidoExistente.Username = pedidoMod.Username;
-        //             pedidoExistente.SetorId = pedidoMod.SetorId;
-        //             pedidoExistente.Roles = pedidoMod.Roles;
-        //             pedidoExistente.Ativo = pedidoMod.Ativo;
-        //             pedidoExistente.DataUltimaAtualizacao = DateTime.UtcNow;
+        [HttpPut("{id}")]
+        public async Task<IActionResult> ModifyPedido(int id, [FromBody] PedidoPutDTO pedidoMod)
+        {
+            try
+            {
+                var pedidoExistente = await _database.tb_pedido.FindAsync(id);
+                if (pedidoExistente == null)
+                {
+                    return NotFound($"Setor id {id} não encontrado");   
+                }
 
-        //             await _database.SaveChangesAsync();
-        //             return Ok(usuarioExistente);
-        //         }
-        //         return NotFound($"Setor id {id} não encontrado");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, ex);
-        //     }
-        // }
+                if (pedidoMod.ProdutoIds != null && pedidoMod.ProdutoIds.Any()) 
+                {
+                    pedidoExistente.ProdutoIds = pedidoMod.ProdutoIds;
+                }
+                if (pedidoMod.NumeroAdquirido != null && pedidoMod.NumeroAdquirido.Any()) 
+                {
+                    pedidoExistente.NumeroAdiquirido = pedidoMod.NumeroAdquirido;
+                }
+                if (pedidoMod.ValorTotal > 0) 
+                {
+                    pedidoExistente.ValorTotal = pedidoMod.ValorTotal;
+                }
+                if (pedidoMod.Status != 0) 
+                {
+                    pedidoExistente.Status = pedidoMod.Status;
+                }
+
+                _database.tb_pedido.Update(pedidoExistente);
+                await _database.SaveChangesAsync();
+
+                var pedidoDTO = _mapper.Map<PedidoDTO>(pedidoExistente);
+                return Ok(pedidoDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
+        }
 
 
         [HttpDelete("{id}")]
