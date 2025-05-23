@@ -74,6 +74,9 @@ namespace Backend.Dto
 
             CreateMap<Pedido, PedidoDTO>();
             CreateMap<PedidoPostDTO, Pedido>();
+
+            CreateMap<ItemPedido, ItemPedido_PedidoDTO>();
+            CreateMap<ItemPedidoPostDTO, ItemPedido>();
         }
     }
 }

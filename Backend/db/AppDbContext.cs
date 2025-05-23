@@ -25,6 +25,8 @@ namespace ControlePlus_BackEnd.db
 
         public DbSet<Movimentacao> tb_movimentacao { get; set; }
 
+        public DbSet<ItemPedido> tb_item_pedido { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -44,18 +46,7 @@ namespace ControlePlus_BackEnd.db
                 .WithMany(s => s.Usuarios)
                 .HasForeignKey(u => u.SetorId);
 
-            modelBuilder.Entity<Pedido>()
-                .HasMany(p => p.Produtos)
-                .WithOne()
-                .HasForeignKey("PedidoId")
-                .IsRequired(false);
 
-            modelBuilder.Entity<Pedido>()
-                .Property(p => p.ProdutoIds)
-                .HasConversion(
-                    v => string.Join(",", v),
-                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList()
-                );
         }
     }
 }

@@ -31,7 +31,10 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var pedidos = await _database.tb_pedido.Include(p => p.Produtos).ToListAsync();
+                var pedidos = await _database.tb_pedido.Include(p => p.Itens).ThenInclude(i => i.Produto).ThenInclude(p => p.Fornecedor)
+                    .Include(p => p.Itens).ThenInclude(i => i.Produto).ThenInclude(p => p.Categoria)
+                    .Include(p => p.Itens).ThenInclude(i => i.Produto).ThenInclude(p => p.Setor)
+                    .Include(p => p.Usuario).ToListAsync();
 
                 if (pedidos == null || !pedidos.Any())
                 {
@@ -55,7 +58,11 @@ namespace ControlePlus_BackEnd.Controllers
         {
             try
             {
-                var pedido = await _database.tb_pedido.FirstOrDefaultAsync(p => p.Id == id);
+                var pedido = await _database.tb_pedido.Include(p => p.Itens).ThenInclude(i => i.Produto).ThenInclude(p => p.Fornecedor)
+                    .Include(p => p.Itens).ThenInclude(i => i.Produto).ThenInclude(p => p.Categoria)
+                    .Include(p => p.Itens).ThenInclude(i => i.Produto).ThenInclude(p => p.Setor)
+                    .Include(p => p.Usuario).FirstOrDefaultAsync(p => p.Id == id);
+
                 if (pedido == null)
                 {
                     return NotFound($"Pedido id {id} não encontrado");
@@ -85,12 +92,25 @@ namespace ControlePlus_BackEnd.Controllers
                 var pedido = _mapper.Map<Pedido>(dto);
                 pedido.DataPedido = DateTime.UtcNow;
 
+                foreach (var prodDTO in dto.Produtos)
+                {
+                    pedido.Itens.Add(_mapper.Map<ItemPedido>(prodDTO));
+                }
+
+                var produtos = await _database.tb_produto.Where(p => dto.Produtos.Select(x => x.ProdutoId).Contains(p.Cod)).ToListAsync();
+
+                pedido.ValorTotal = produtos.Sum(p =>
+                {
+                    var qtd = dto.Produtos.First(i => i.ProdutoId == p.Cod).Quantidade;
+                    return p.PrecoCompra * qtd;
+                });
+
                 _database.tb_pedido.Add(pedido);
                 await _database.SaveChangesAsync();
 
                 var pedidoDTO = _mapper.Map<PedidoDTO>(pedido);
 
-                return Created("", pedidoDTO);
+                return Created("Pedido criado com sucesso", pedidoDTO);
             }
             catch (Exception ex)
             {
@@ -107,22 +127,10 @@ namespace ControlePlus_BackEnd.Controllers
                 var pedidoExistente = await _database.tb_pedido.FindAsync(id);
                 if (pedidoExistente == null)
                 {
-                    return NotFound($"Setor id {id} não encontrado");   
+                    return NotFound($"Setor id {id} não encontrado");
                 }
 
-                if (pedidoMod.ProdutoIds != null && pedidoMod.ProdutoIds.Any()) 
-                {
-                    pedidoExistente.ProdutoIds = pedidoMod.ProdutoIds;
-                }
-                if (pedidoMod.NumeroAdquirido != null && pedidoMod.NumeroAdquirido.Any()) 
-                {
-                    pedidoExistente.NumeroAdiquirido = pedidoMod.NumeroAdquirido;
-                }
-                if (pedidoMod.ValorTotal > 0) 
-                {
-                    pedidoExistente.ValorTotal = pedidoMod.ValorTotal;
-                }
-                if (pedidoMod.Status != 0) 
+                if (pedidoMod.Status != 0)
                 {
                     pedidoExistente.Status = pedidoMod.Status;
                 }

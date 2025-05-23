@@ -8,9 +8,7 @@ namespace ControlePlus_BackEnd.models
             DataPedido = DateTime.UtcNow;
         }
         public int Id { get; set; }
-        public List<int>? ProdutoIds { get; set; }
-        public ICollection<Produto>? Produtos { get; set; }
-        public int[]? NumeroAdiquirido { get; set; }
+        public ICollection<ItemPedido> Itens { get; set; } = new List<ItemPedido>();
         public int UsuarioId { get; set; }
         public Usuario? Usuario { get; set; }
         public decimal ValorTotal { get; set; }

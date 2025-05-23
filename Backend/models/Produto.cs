@@ -17,7 +17,7 @@ namespace ControlePlus_BackEnd.models
         public Estoque? Estoque { get; set; }
         public decimal PrecoCompra { get; set; }
         public decimal PrecoVenda { get; set; }
-        ICollection<Movimentacao>? Historico { get; set; }
+        public ICollection<Movimentacao>? Historico { get; set; }
 
     }
 }
