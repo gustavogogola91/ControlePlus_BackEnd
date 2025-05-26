@@ -44,6 +44,52 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
+        [HttpGet("alerta")]
+        public async Task<ActionResult<IEnumerable<EstoqueDTO>>> GetAlerta()
+        {
+            try
+            {
+                var estoques = await _database.tb_estoque.Include(e => e.Produto).ThenInclude(e => e.Fornecedor)
+                    .Include(p => p.Produto).ThenInclude(p => p.Setor).Where(e => e.Quantidade <= e.QuantidadeAlerta).ToListAsync();
+
+                if (estoques == null || !estoques.Any())
+                {
+                    return NotFound("Não existem estoques com quantidade abaixo ou igual ao do alerta.");
+                }
+                
+                var estoquesDTO = _mapper.Map<List<EstoqueDTO>>(estoques);
+                return Ok(estoquesDTO);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
+        }
+
+        [HttpGet("vazio")]
+        public async Task<ActionResult<IEnumerable<EstoqueDTO>>> GetVazio()
+        {
+            try
+            {
+                var estoques = await _database.tb_estoque.Include(e => e.Produto).ThenInclude(e => e.Fornecedor)
+                    .Include(p => p.Produto).ThenInclude(p => p.Setor).Where(e => e.Quantidade == 0).ToListAsync();
+
+                if (estoques == null || !estoques.Any())
+                {
+                    return NotFound("Não existem estoques com quantidade zero.");
+                }
+                
+                var estoquesDTO = _mapper.Map<List<EstoqueDTO>>(estoques);
+                return Ok(estoquesDTO);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
+        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<EstoqueDTO>> GetEstoqueById(int id)
@@ -133,13 +179,16 @@ namespace ControlePlus_BackEnd.Controllers
 
                 if (estoque != null)
                 {
-                    if(estoquePutDTO.Quantidade != 0) {
+                    if (estoquePutDTO.Quantidade > -1)
+                    {
                         estoque.Quantidade = estoquePutDTO.Quantidade;
                     }
-                    if(estoquePutDTO.QuantidadeAlerta != 0) {
+                    if (estoquePutDTO.QuantidadeAlerta != 0)
+                    {
                         estoque.QuantidadeAlerta = estoquePutDTO.QuantidadeAlerta;
                     }
-                    if(estoquePutDTO.QuantidadeVendidos != 0) {
+                    if (estoquePutDTO.QuantidadeVendidos != 0)
+                    {
                         estoque.QuantidadeVendidos = estoquePutDTO.QuantidadeVendidos;
                     }
 
