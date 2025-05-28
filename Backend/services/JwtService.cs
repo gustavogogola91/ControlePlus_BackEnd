@@ -11,7 +11,8 @@ namespace Backend.services
 
         private readonly IConfiguration _config;
 
-        public JwtService(IConfiguration config) {
+        public JwtService(IConfiguration config)
+        {
             _config = config;
         }
 
@@ -23,15 +24,15 @@ namespace Backend.services
                     new Claim(ClaimTypes.Role, jwt.Roles.ToString()!),
                 };
 
-                var token = new JwtSecurityToken(
-                    issuer: _config["Jwt:Issuer"],
-                    expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpirationMinutes"]!)),
-                    claims: authClaims,
-                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)), SecurityAlgorithms.HmacSha256)
-                );
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpirationMinutes"]!)),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)), SecurityAlgorithms.HmacSha256)
+            );
 
-                string Token = new JwtSecurityTokenHandler().WriteToken(token);
-                return Token;
+            string Token = new JwtSecurityTokenHandler().WriteToken(token);
+            return Token;
         }
     }
 }

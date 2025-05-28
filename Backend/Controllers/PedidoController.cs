@@ -54,7 +54,7 @@ namespace ControlePlus_BackEnd.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<PedidoDTO>> GetUsuarioById(int id)
+        public async Task<ActionResult<PedidoDTO>> GetPedidoById(int id)
         {
             try
             {
@@ -118,6 +118,24 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
+        [HttpGet("alerta")]
+        public async Task<IActionResult> NewPedidoAlerta()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var estoques = await _database.tb_estoque.Include(e => e.Produto).Where(e => e.Quantidade <= e.QuantidadeAlerta).ToListAsync();    
+
+            foreach (var item in estoques)
+            {
+                System.Console.WriteLine(item.);
+            }
+
+
+            return Ok();
+        }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> ModifyPedido(int id, [FromBody] PedidoPutDTO pedidoMod)
