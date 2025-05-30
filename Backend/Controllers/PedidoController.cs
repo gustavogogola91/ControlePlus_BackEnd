@@ -5,9 +5,7 @@ using ControlePlus_BackEnd.Dto;
 using ControlePlus_BackEnd.models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-//PARA TERMINAR PRECISA DE:
-// - USUARIOID
+// o item pedido pode ter o ID modificado?
 
 namespace ControlePlus_BackEnd.Controllers
 {
@@ -118,24 +116,90 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
-        [HttpGet("alerta")]
-        public async Task<IActionResult> NewPedidoAlerta()
+        [HttpPost("alerta")]
+        public async Task<IActionResult> NewPedidoAlerta([FromBody] PedidoAutoDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var estoques = await _database.tb_estoque.Include(e => e.Produto).Where(e => e.Quantidade <= e.QuantidadeAlerta).ToListAsync();    
+            var estoques = await _database.tb_estoque.Include(e => e.Produto).Where(e => e.Quantidade <= e.QuantidadeAlerta).ToListAsync();
 
-            foreach (var item in estoques)
+            List<ItemPedidoPostDTO> ItemsPedido = new List<ItemPedidoPostDTO>();
+            var pedido = new Pedido();
+
+            pedido.ValorTotal = 0;
+
+            pedido.UsuarioId = dto.UsuarioId;
+
+            foreach (var estoque in estoques)
             {
-                System.Console.WriteLine(item.);
+                var ItemDTO = new ItemPedidoPostDTO();
+
+                int quantidade = estoque.QuantidadeAlerta + Convert.ToInt16(estoque.QuantidadeAlerta * 0.25);
+
+                ItemDTO.ProdutoId = estoque.ProdutoId;
+                ItemDTO.Quantidade = quantidade;
+
+                pedido.ValorTotal += estoque.Produto.PrecoCompra * quantidade;
+
+                var Item = _mapper.Map<ItemPedido>(ItemDTO);
+
+                pedido.Itens.Add(Item);
             }
 
+            _database.tb_pedido.Add(pedido);
+            await _database.SaveChangesAsync();
 
-            return Ok();
+            var pedidoDTO = _mapper.Map<PedidoDTO>(pedido);
+
+
+            return Ok(pedidoDTO);
         }
+
+        [HttpPost("vazio")]
+        public async Task<IActionResult> NewPedidoVazio([FromBody] PedidoAutoDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var estoques = await _database.tb_estoque.Include(e => e.Produto).Where(e => e.Quantidade == 0).ToListAsync();
+
+            List<ItemPedidoPostDTO> ItemsPedido = new List<ItemPedidoPostDTO>();
+            var pedido = new Pedido();
+
+            pedido.ValorTotal = 0;
+
+            pedido.UsuarioId = dto.UsuarioId;
+
+            foreach (var estoque in estoques)
+            {
+                var ItemDTO = new ItemPedidoPostDTO();
+
+                int quantidade = estoque.QuantidadeAlerta + Convert.ToInt16(estoque.QuantidadeAlerta * 0.25);
+
+                ItemDTO.ProdutoId = estoque.ProdutoId;
+                ItemDTO.Quantidade = quantidade;
+
+                pedido.ValorTotal += estoque.Produto.PrecoCompra * quantidade;
+
+                var Item = _mapper.Map<ItemPedido>(ItemDTO);
+
+                pedido.Itens.Add(Item);
+            }
+
+            _database.tb_pedido.Add(pedido);
+            await _database.SaveChangesAsync();
+
+            var pedidoDTO = _mapper.Map<PedidoDTO>(pedido);
+
+
+            return Ok(pedidoDTO);
+        }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> ModifyPedido(int id, [FromBody] PedidoPutDTO pedidoMod)
