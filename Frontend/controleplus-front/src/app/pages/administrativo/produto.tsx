@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 
 const ApiUrl = "http://localhost:5290/produto";
 
@@ -15,6 +15,31 @@ interface produto {
   categoriaNome: string;
 }
 
+interface produtoPost {
+  cod: number;
+  nome: string;
+  precoCompra: string;
+  precoVenda: string;
+  setorId: number;
+  fornecedorId: number;
+  categoriaId: number;
+}
+
+interface setor {
+  id: number;
+  nome: string;
+}
+
+interface fornecedor {
+  id: number;
+  nome: string;
+}
+
+interface categoria {
+  id: number;
+  nome: string;
+}
+
 export default function produto() {
   //  const showModal = () => {
 
@@ -22,9 +47,10 @@ export default function produto() {
 
   return (
     <>
-      <section className="w-[1110px]">
+      <section className="w-[1110px] m-auto">
         <div className="flex justify-between items-center p-2">
           <h3 className="text-[16px] font-bold">Produtos</h3>
+          <AdicionarProduto />
           {/* TODO implementar lógica de busca */}
           <div>
             <Search
@@ -90,6 +116,7 @@ function listarProdutos() {
               <td>{produto.categoriaNome}</td>
               <td>
                 <EditarProduto produtoOriginal={produto} />
+                <ExcluirProduto cod={produto.cod} buscarProdutos={buscarProdutos}/>
               </td>
             </tr>
           ))
@@ -131,9 +158,9 @@ function EditarProduto({ produtoOriginal }: { produtoOriginal: produto }) {
         });
         window.location.reload();
       });
-      console.log("Paciente atualizado com sucesso:", produto);
+      console.log("Produto atualizado com sucesso:", produto);
     } catch (error) {
-      console.error("Erro ao atualizar paciente:", error);
+      console.error("Erro ao atualizar produto:", error);
     }
   }
 
@@ -242,6 +269,267 @@ function EditarProduto({ produtoOriginal }: { produtoOriginal: produto }) {
           </div>
         </div>
       )}
+    </>
+  );
+}
+
+function AdicionarProduto() {
+  const [showModal, setShowModal] = useState(false);
+  const [produto, setProduto] = useState<produtoPost>({
+    cod: 0,
+    nome: "",
+    precoCompra: "R$ 0,00",
+    precoVenda: "R$ 0,00",
+    setorId: 0,
+    fornecedorId: 0,
+    categoriaId: 0,
+  });
+
+  const [setores, setSetor] = useState<setor[]>([]);
+  const [fornecedores, setFornecedor] = useState<fornecedor[]>([]);
+  const [categorias, setCategoria] = useState<categoria[]>([]);
+
+  async function buscarSetor() {
+    await fetch("http://localhost:5290/setor")
+      .then((response) => response.json())
+      .then((data) => setSetor(data))
+      .catch((error) => console.error("erro ao buscar produtos", error));
+  }
+
+  async function buscarFornecedor() {
+    await fetch("http://localhost:5290/fornecedor")
+      .then((response) => response.json())
+      .then((data) => setFornecedor(data))
+      .catch((error) => console.error("erro ao buscar produtos", error));
+  }
+
+  async function buscarCategoria() {
+    await fetch("http://localhost:5290/categoria")
+      .then((response) => response.json())
+      .then((data) => setCategoria(data))
+      .catch((error) => console.error("erro ao buscar produtos", error));
+  }
+
+  useEffect(() => {
+    buscarCategoria();
+    buscarFornecedor();
+    buscarSetor();
+  }, []);
+
+  function postProduto(produto: {
+    cod: number;
+    nome: string;
+    descricao: string;
+    precoCompra: number;
+    precoVenda: number;
+    setorId: number;
+    fornecedorId: number;
+    categoriaId: number;
+  }) {
+    try {
+      fetch(`${ApiUrl}/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(produto),
+      }).then(() => {
+        setShowModal(false);
+        setProduto({
+          cod: 0,
+          nome: "",
+          precoCompra: "R$ 0,00",
+          precoVenda: "R$ 0,00",
+          setorId: 0,
+          fornecedorId: 0,
+          categoriaId: 0,
+        });
+        console.log(produto);
+      });
+      console.log("Produto adicionado com sucesso:", produto);
+    } catch (error) {
+      console.error("Erro ao adicionar produto:", error);
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const precoCompraNumerico =
+        Number(produto.precoCompra.replace(/\D/g, "")) / 100;
+      const precoVendaNumerico =
+        Number(produto.precoVenda.replace(/\D/g, "")) / 100;
+
+      postProduto({
+        cod: produto.cod,
+        nome: produto.nome,
+        descricao: "a",
+        precoCompra: precoCompraNumerico,
+        precoVenda: precoVendaNumerico,
+        setorId: produto.setorId,
+        fornecedorId: produto.fornecedorId,
+        categoriaId: produto.categoriaId,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setProduto({ ...produto, [name]: value });
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setProduto({ ...produto, [name]: value });
+  };
+
+  const formatBRL = (value: string) => {
+    const cleanValue = value.replace(/\D/g, "");
+    const numberValue = parseInt(cleanValue || "0", 10);
+
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(numberValue / 100);
+  };
+
+  const handleDinheiroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    const { name } = e.target;
+
+    setProduto({ ...produto, [name]: formatBRL(input) });
+  };
+
+  return (
+    <>
+      <button
+        className="bg-blue rounded-[10px] shadow px-3 py-1 m-1 font-bold cursor-pointer uppercase text-white text-center"
+        title="Adicionar produto"
+        onClick={() => setShowModal(true)}
+      >
+        Novo Produto
+      </button>
+      {showModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50"
+          style={{ background: "rgba(0,0,0,0.3)" }}
+        >
+          <div className="bg-white p-8 rounded-lg flex flex-col gap-4 min-w-[350px]">
+            <h2 className="text-xl font-bold text-blue mb-2">Novo Produto</h2>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+              <input
+                name="cod"
+                type="number"
+                placeholder="Codigo"
+                className="border border-blue rounded p-2"
+                required
+                value={produto.cod}
+                onChange={handleChange}
+              />
+              <input
+                name="nome"
+                placeholder="Nome"
+                className="border border-blue rounded p-2"
+                required
+                maxLength={30}
+                value={produto.nome}
+                onChange={handleChange}
+              />
+              <input
+                name="precoCompra"
+                placeholder="Preço de Compra"
+                type="text"
+                className="border border-blue rounded p-2"
+                required
+                maxLength={20}
+                value={produto.precoCompra}
+                onChange={handleDinheiroChange}
+              />
+              <input
+                name="precoVenda"
+                placeholder="Preço de Venda"
+                type="text"
+                className="border border-blue rounded p-2"
+                required
+                maxLength={20}
+                value={produto.precoVenda}
+                onChange={handleDinheiroChange}
+              />
+              <select
+                name="setorId"
+                className="border border-blue rounded p-2"
+                onChange={handleSelectChange}
+              >
+                <option value="">Selecione um setor</option>
+                {setores.map((setor) => {
+                  return <option value={setor.id}>{setor.nome}</option>;
+                })}
+              </select>
+              <select
+                name="fornecedorId"
+                className="border border-blue rounded p-2"
+                onChange={handleSelectChange}
+              >
+                <option value="">Selecione um fornecedor</option>
+                {fornecedores.map((fornecedor) => {
+                  return (
+                    <option value={fornecedor.id}>{fornecedor.nome}</option>
+                  );
+                })}
+              </select>
+              <select
+                name="categoriaId"
+                className="border border-blue rounded p-2"
+                onChange={handleSelectChange}
+              >
+                <option value="">Selecione uma categoria</option>
+                {categorias.map((categoria) => {
+                  return <option value={categoria.id}>{categoria.nome}</option>;
+                })}
+              </select>
+
+              <div className="flex justify-around mt-2">
+                <button
+                  type="button"
+                  className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer"
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue text-white px-4 py-2 rounded cursor-pointer"
+                >
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function ExcluirProduto({ cod, buscarProdutos }: { cod: number, buscarProdutos:any }) {
+  const deletarProduto = (cod: number) => {
+    fetch(`${ApiUrl}/${cod}`, {
+            method: 'DELETE',
+        })
+        .then(() => {
+            window.location.reload();
+        })
+        .catch((error) => console.error('Erro ao deletar paciente:', error));
+  };
+  return (
+    <>
+      <button
+        className="ml-2 bg-transparent hover:bg-red-100 rounded p-1"
+        title="Deletar Produto"
+        onClick={() => deletarProduto(cod)}
+      >
+        <img src="/trashicon.png" alt="Trash icon" className="w-6 h-6" />
+      </button>
     </>
   );
 }
