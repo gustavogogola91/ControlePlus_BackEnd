@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { ReactElement, useEffect, useState } from "react";
 import { buscarProdutos, buscarProdutosNome, useDebounce } from "./actions";
 import { setMaxListeners } from "events";
@@ -61,13 +61,9 @@ function TabelaProdutos() {
   const [loading, setLoading] = useState(true);
   const [inputValue, setInputValue] = useState("");
 
-  const termoDebounced = useDebounce(inputValue, 500);
+  const termoDebounced = useDebounce(inputValue, 500);//500 ms de delay para fazer a requisição
 
   useEffect(() => {
-    // if (termoDebounced.trim() === "") {
-    //   setProdutos([]);
-    //   return;
-    // }
 
     async function carregarProdutos() {
       try {
@@ -103,10 +99,9 @@ function TabelaProdutos() {
 
   return (
     <div className="flex flex-col justify-between items-center p-2">
-      <div className="w-full flex justify-between">
+      <div className="w-full flex justify-between items-center p-2">
         <h3 className="text-[16px] font-bold">Produtos</h3>
         <AdicionarProduto />
-        {/* TODO implementar lógica de busca */}
         <div>
           <Search
             size={20}
@@ -162,7 +157,7 @@ function listarProdutos(produtos: produto[] | undefined | null) {
               <td>R${produto.precoVenda}</td>
               <td>R${produto.precoCompra}</td>
               <td>{produto.categoriaNome}</td>
-              <td>
+              <td className="flex justify-center items-center">
                 <EditarProduto produtoOriginal={produto} />
                 <ExcluirProduto
                   cod={produto.cod}
@@ -173,7 +168,6 @@ function listarProdutos(produtos: produto[] | undefined | null) {
           ))
         )}
       </tbody>
-      {/* <th><button onClick={showModal()}>Editar</button></th> */}
     </table>
   );
 }
@@ -324,7 +318,7 @@ function EditarProduto({ produtoOriginal }: { produtoOriginal: produto }) {
   );
 }
 
-function AdicionarProduto() {
+function AdicionarProduto() { //FIXME Each child in a list should have a unique "key" prop.
   const [showModal, setShowModal] = useState(false);
   const [produto, setProduto] = useState<produtoPost>({
     cod: 0,
@@ -399,6 +393,7 @@ function AdicionarProduto() {
     } catch (error) {
       console.error("Erro ao adicionar produto:", error);
     }
+    window.location.reload();
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -575,11 +570,11 @@ function ExcluirProduto({ cod, buscarProdutos }: { cod: number, buscarProdutos:a
   return (
     <>
       <button
-        className="ml-2 bg-transparent hover:bg-red-100 rounded p-1"
+        className="ml-2 text-center bg-transparent cursor-pointer hover:bg-red-100 rounded p-1"
         title="Deletar Produto"
         onClick={() => deletarProduto(cod)}
       >
-        <img src="/trashicon.png" alt="Trash icon" className="w-6 h-6" />
+        <Trash2 />
       </button>
     </>
   );

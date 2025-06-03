@@ -15,7 +15,7 @@ export async function buscarProdutosNome(nome: string) {
   return response.json();
 }
 
-export function useDebounce<T>(value: T, delay: number): T {
+export function useDebounce<T>(value: T, delay: number): T { //XXX pra que o T?
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {

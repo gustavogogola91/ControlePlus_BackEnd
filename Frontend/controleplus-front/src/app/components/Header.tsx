@@ -15,16 +15,21 @@ const parseOption = (value: string): OptionType => {
 export const Header = () => {
 
     const router = useRouter()
-    const [option, setOption] = useState<OptionType>(() => {
-        const saved = localStorage.getItem("headerOption"); //FIXME: ta puxando isso aqui no SSR
-        return saved ? parseOption(saved) : "home";
-    })
+    const [option, setOption] = useState<OptionType>('home')
 
     useEffect(() => {
-        localStorage.setItem("headerOption", option);
-    }, [option]);
+        const savedOption = localStorage.getItem("headerOption") as OptionType | null;
+        if (savedOption) {
+            setOption(savedOption);
+        }
+        
+    }, []);
 
-
+    const handleOptionChange = (newOption: OptionType) => {
+        router.push(newOption)
+        localStorage.setItem("headerOption", newOption);
+        setOption(newOption);
+    }
 
 
     return (
@@ -38,8 +43,7 @@ export const Header = () => {
                 ${option == 'home' ? "bg-blue text-white shadow rounded-[10px]" : "bg-white text-black"}`}
 
                     onClick={() => {
-                        router.push('home')
-                        setOption('home');
+                        handleOptionChange('home')
                     }
                     }
                 >Home</button>
@@ -49,8 +53,7 @@ export const Header = () => {
                 ${option == 'administrativo' ? "bg-blue text-white rounded-[10px] shadow" : "bg-white text-black"}`}
 
                     onClick={() => {
-                        router.push('administrativo')
-                        setOption('administrativo');
+                        handleOptionChange('administrativo')
                     }
                     }
                 >Administrativo</button>
