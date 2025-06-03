@@ -2,7 +2,7 @@
 
 import { Search } from "lucide-react";
 import { ReactElement, useEffect, useState } from "react";
-import { buscarProdutos } from "./actions";
+import { buscarProdutos, buscarProdutosNome, useDebounce } from "./actions";
 import { setMaxListeners } from "events";
 
 const ApiUrl = "http://localhost:5290/produto";
@@ -61,19 +61,36 @@ function TabelaProdutos() {
   const [loading, setLoading] = useState(true);
   const [inputValue, setInputValue] = useState("");
 
+  const termoDebounced = useDebounce(inputValue, 500);
+
   useEffect(() => {
+    // if (termoDebounced.trim() === "") {
+    //   setProdutos([]);
+    //   return;
+    // }
+
     async function carregarProdutos() {
       try {
-        const dados = await buscarProdutos();
-        setProdutos(dados);
+        let dados: any = null;
+        if(inputValue != "")
+          {
+            dados = await buscarProdutosNome(inputValue);
+          }else{
+            dados = await buscarProdutos();
+          }
         setLoading(false);
+        setProdutos(dados);
       } catch (err) {
         console.log(err instanceof Error ? err.message : "Erro desconhecido");
+        setLoading(false);
+        setProdutos([]);
       }
+
+
     }
 
     carregarProdutos();
-  }, [produtos]); //Se der errado tirar essa dependencia
+  }, [termoDebounced]);
 
   function loadingAnimation() {
     return (
@@ -99,6 +116,8 @@ function TabelaProdutos() {
           <input
             type="text"
             placeholder="Procurar Produto"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             className="rounded-xl bg-gray-200 text-gray-600 text-center px-5 py-2"
           />
         </div>
@@ -140,8 +159,8 @@ function listarProdutos(produtos: produto[] | undefined | null) {
               <td className="p-2">{produto.cod}</td>
               <td>{produto.nome}</td>
               <td>{produto.setorNome}</td>
-              <td>{produto.precoVenda}</td>
-              <td>{produto.precoCompra}</td>
+              <td>R${produto.precoVenda}</td>
+              <td>R${produto.precoCompra}</td>
               <td>{produto.categoriaNome}</td>
               <td>
                 <EditarProduto produtoOriginal={produto} />

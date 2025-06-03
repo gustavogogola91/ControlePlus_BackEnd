@@ -69,6 +69,33 @@ namespace ControlePlus_BackEnd.Controllers
             }
         }
 
+        [HttpGet("buscar/{nome}")]
+        public async Task<ActionResult<IEnumerable<Produto>>> GetByName(string nome)
+        {
+            try
+            {
+                var produtos = await _database.tb_produto
+                        .Include(p => p.Categoria)
+                        .Include(p => p.Fornecedor)
+                        .Include(p => p.Setor)
+                    .Where(p => p.Nome.Contains(nome))
+                .ToListAsync();
+                
+                if (produtos == null || !produtos.Any())
+                {
+                    return NotFound("Não existem produtos cadastrados.");
+                }
+
+                var produtosDTO = _mapper.Map<List<ProdutoDTO>>(produtos);
+
+                return Ok(produtosDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> NewProduto([FromBody] ProdutoPostDTO dto)
         {
