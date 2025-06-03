@@ -2,10 +2,12 @@
 
 import { Search } from "lucide-react";
 import { ReactElement, useEffect, useState } from "react";
+import { buscarProdutos } from "./actions";
+import { setMaxListeners } from "events";
 
 const ApiUrl = "http://localhost:5290/produto";
 
-interface produto {
+export interface produto {
   cod: number;
   nome: string;
   precoCompra: number;
@@ -48,44 +50,71 @@ export default function produto() {
   return (
     <>
       <section className="w-[1110px] m-auto">
-        <div className="flex justify-between items-center p-2">
-          <h3 className="text-[16px] font-bold">Produtos</h3>
-          <AdicionarProduto />
-          {/* TODO implementar lógica de busca */}
-          <div>
-            <Search
-              size={20}
-              color="#1D1B20"
-              className="bg-gray-200 absolute ml-3 mt-[9px]"
-            />
-            <input
-              type="text"
-              placeholder="Procurar Produto"
-              className="rounded-xl bg-gray-200 text-gray-600 text-center px-5 py-2"
-            />
-          </div>
-        </div>
-        {listarProdutos()}
+        <TabelaProdutos/>
       </section>
     </>
   );
 }
+//COMPONENTES
+function TabelaProdutos() {
+  const [produtos, setProdutos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    async function carregarProdutos() {
+      try {
+        const dados = await buscarProdutos();
+        setProdutos(dados);
+        setLoading(false);
+      } catch (err) {
+        console.log(err instanceof Error ? err.message : "Erro desconhecido");
+      }
+    }
+
+    carregarProdutos();
+  }, [produtos]); //Se der errado tirar essa dependencia
+
+  function loadingAnimation() {
+    return (
+      <>
+        <div className="h-8 mt-10 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-t-transparent"></div>
+        <span className="text-gray-600">Carregando...</span>
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col justify-between items-center p-2">
+      <div className="w-full flex justify-between">
+        <h3 className="text-[16px] font-bold">Produtos</h3>
+        <AdicionarProduto />
+        {/* TODO implementar lógica de busca */}
+        <div>
+          <Search
+            size={20}
+            color="#1D1B20"
+            className="bg-gray-200 absolute ml-3 mt-[9px]"
+          />
+          <input
+            type="text"
+            placeholder="Procurar Produto"
+            className="rounded-xl bg-gray-200 text-gray-600 text-center px-5 py-2"
+          />
+        </div>
+      </div>
+      {loading == true ? loadingAnimation() : listarProdutos(produtos)}
+    </div>
+  );
+}
+
 
 //LÓGICA
 
-function listarProdutos() {
-  const [produtos, setProdutos] = useState([]);
-
-  async function buscarProdutos() {
-    await fetch(`${ApiUrl}`)
-      .then((response) => response.json())
-      .then((data) => setProdutos(data))
-      .catch((error) => console.error("erro ao buscar produtos", error));
+function listarProdutos(produtos: produto[] | undefined | null) {
+  if (produtos == undefined || produtos == null) {
+    return <h1>Nenhum produto encontrado</h1>;
   }
-
-  useEffect(() => {
-    buscarProdutos();
-  }, []);
 
   return (
     <table className=" w-full">
@@ -116,7 +145,10 @@ function listarProdutos() {
               <td>{produto.categoriaNome}</td>
               <td>
                 <EditarProduto produtoOriginal={produto} />
-                <ExcluirProduto cod={produto.cod} buscarProdutos={buscarProdutos}/>
+                <ExcluirProduto
+                  cod={produto.cod}
+                  buscarProdutos={buscarProdutos}
+                />
               </td>
             </tr>
           ))
