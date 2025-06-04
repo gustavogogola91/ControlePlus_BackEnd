@@ -22,7 +22,6 @@ export interface estoque {
   produto: produto;
   quantidade: number;
   quantidadeAlerta: number;
-  quantidadeVendidos: number;
 }
 
 interface produtoPost {
@@ -143,7 +142,6 @@ function listarEstoques(estoques: estoque[] | undefined | null) {
           <th className="p-2">Id do produto</th>
           <th>Nome</th>
           <th>Quantidade</th>
-          <th>Quantidade Vendidos</th>
           <th>Ações</th>
         </tr>
       </thead>
@@ -159,7 +157,6 @@ function listarEstoques(estoques: estoque[] | undefined | null) {
               <td>{estoque.produto.cod}</td>
               <td>{estoque.produto.nome}</td>
               <td className={estoque.quantidade <= estoque.quantidadeAlerta ? "text-red-400" : "text-black"}>{estoque.quantidade}</td>
-              <td>{estoque.quantidadeVendidos}</td>
               <td className="flex justify-center items-center">
                 <EditarEstoque estoqueOriginal={estoque} />
               </td>
@@ -178,8 +175,7 @@ function EditarEstoque({ estoqueOriginal }: { estoqueOriginal: estoque }) {
     id: estoqueOriginal.id,
     produto: estoqueOriginal.produto,
     quantidade: estoqueOriginal.quantidade,
-    quantidadeAlerta: estoqueOriginal.quantidadeAlerta,
-    quantidadeVendidos: estoqueOriginal.quantidadeVendidos
+    quantidadeAlerta: estoqueOriginal.quantidadeAlerta
   });
 
   function putEstoque(estoque: estoque) {
@@ -202,8 +198,7 @@ function EditarEstoque({ estoqueOriginal }: { estoqueOriginal: estoque }) {
             categoriaNome: "",
           },
           quantidade: 0,
-          quantidadeAlerta: 0,
-          quantidadeVendidos: 0
+          quantidadeAlerta: 0
         });
         window.location.reload();
       });
@@ -239,12 +234,22 @@ function EditarEstoque({ estoqueOriginal }: { estoqueOriginal: estoque }) {
           <div className="bg-white p-8 rounded-lg flex flex-col gap-4 min-w-[350px]">
             <h2 className="text-xl font-bold text-blue mb-2">Editar Estoque</h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+              <label htmlFor="quantidade">Quantidade</label>
               <input
                 name="quantidade"
                 placeholder="Quantidade"
                 className="border border-blue rounded p-2"
                 maxLength={30}
                 value={estoque.quantidade}
+                onChange={handleChange}
+              />
+              <label htmlFor="quantidadeAlerta">Quantidade Alerta</label>
+              <input
+                name="quantidadeAlerta"
+                placeholder="Quantidade Alerta"
+                className="border border-blue rounded p-2"
+                maxLength={30}
+                value={estoque.quantidadeAlerta}
                 onChange={handleChange}
               />
 

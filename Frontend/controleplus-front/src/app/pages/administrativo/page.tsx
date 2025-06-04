@@ -1,8 +1,8 @@
 "use client"
 import { useState } from "react"
 import { AdminSideNavigation } from "@/app/components/ui/adminSideNavigation"
-import produto from "./produto"
-import estoque from "./estoque"
+import Produto from "./Produto"
+import Estoque from "./Estoque"
 
 
 export default function administrativo() {
@@ -17,8 +17,8 @@ export default function administrativo() {
 
             </aside>
             <div className="flex mx-auto">
-                {activeComponent === "produtos" && produto()}
-                {activeComponent === "estoque" && estoque()}
+                {activeComponent === "produtos" && <Produto/>}
+                {activeComponent === "estoque" && <Estoque/>}
             </div>
         </div>
 

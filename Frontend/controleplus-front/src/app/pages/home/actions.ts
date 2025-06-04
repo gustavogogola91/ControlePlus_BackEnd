@@ -16,3 +16,11 @@ export async function buscarEstoqueVazio() {
     if (!response.ok) throw new Error("Erro ao carregar produtos");
     return response.json();
 }
+
+
+//APIs PEDIDO
+export async function buscarPedidos() {
+    const response = await fetch(`${ApiUrlPedido}`);
+    if (!response.ok) throw new Error("Erro ao carregar pedidos");
+    return response.json();
+}

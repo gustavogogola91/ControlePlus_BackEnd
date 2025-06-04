@@ -1,13 +1,22 @@
 import { useEffect, useState } from "react";
-import { buscarEstoqueAlerta, buscarEstoqueVazio } from "./actions";
+import { buscarEstoqueAlerta, buscarEstoqueVazio, buscarPedidos } from "./actions";
 
+interface pedido  {
+    id: number;
+    status: string;
+    dataPedido: string;
+    valorTotal: number;
+}
 
 const Dashboard = () => {
 
     const [estoquesAlerta, setEstoquesAlerta] = useState([]);
     const [estoquesVazio, setEstoquesVazio] = useState([]);
 
-    const [loading, setLoading] = useState(true);
+    const [pedidos, setPedidos] = useState([]);
+
+    const [loadingEstoque, setLoadingEstoque] = useState(true);
+    const [loadingPedidos, setLoadingPedidos] = useState(true);
 
     useEffect(() => {
     
@@ -20,17 +29,33 @@ const Dashboard = () => {
             
             setEstoquesAlerta(estoqueAlerta);
             setEstoquesVazio(estoqueVazio);
-            setLoading(false);
+            setLoadingEstoque(false)
           } catch (err) {
             console.log(err instanceof Error ? err.message : "Erro desconhecido");
-            setLoading(false);
+            setLoadingEstoque(false);
             setEstoquesAlerta([]);
             setEstoquesVazio([]);
           }
     
     
         }
-    
+
+        async function carregarPedidos(){
+            try {
+            let pedidos: any = null;
+            pedidos = await buscarPedidos();
+            setPedidos(pedidos)
+
+            setLoadingPedidos(false);
+          } catch (err) {
+            console.log(err instanceof Error ? err.message : "Erro desconhecido");
+            setLoadingPedidos(false);
+            setPedidos([])
+          }
+
+        }
+
+        carregarPedidos()
         carregarEstoques();
       }, []);
 
@@ -65,6 +90,23 @@ const Dashboard = () => {
                 </div>
                 <div className="flex flex-col  w-[350px] h-[450px] shadow border-gray rounded p-5">
                     <p className="font-semibold text-[16px]">Pedidos</p>
+                    <div className="font-semibold mt-2">
+
+                            {pedidos.map((pedido: pedido) => (
+                                <button
+                                    key={pedido.id}
+                                    className={`px-4 w-full text-justify cursor-pointer py-2 rounded-md mb-2 ${pedido.status.toLowerCase() === "concluido"
+                                            ? "bg-green-100 text-green-700"
+                                            : pedido.status.toLowerCase() === "pendente"
+                                                ? "bg-orange-100 text-orange-500"
+                                                : "bg-red-100 text-red-500"
+                                        }`}
+                                >
+                                    {pedido.id} - {pedido.status} - Valor: R${pedido.valorTotal}
+                                </button>
+                            ))}
+
+                    </div>
                 </div>
             </section>
         </>
