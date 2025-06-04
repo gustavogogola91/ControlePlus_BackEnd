@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { buscarEstoqueAlerta, buscarEstoqueVazio } from "./actions";
 
 
-const dashboard = () => {
+const Dashboard = () => {
 
     const [estoquesAlerta, setEstoquesAlerta] = useState([]);
     const [estoquesVazio, setEstoquesVazio] = useState([]);
@@ -71,4 +71,4 @@ const dashboard = () => {
     )
 }
 
-export default dashboard;
+export default Dashboard;

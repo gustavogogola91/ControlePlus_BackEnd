@@ -1,12 +1,12 @@
 
-const historico = () => {
+const Historico = () => {
 
 
     return (
         <>
-            <h1>historico</h1>
+            <h1>Historico</h1>
         </>
     )
 }
 
-export default historico;
+export default Historico;

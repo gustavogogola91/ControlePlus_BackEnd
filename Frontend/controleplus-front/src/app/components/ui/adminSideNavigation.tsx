@@ -2,7 +2,7 @@ import { Archive, List } from "lucide-react";
 import { FC } from "react";
 
 
-interface SideNavigationsProps {
+interface AdminSideNavigationsProps {
     activeComponent: string,
     setActiveComponent: (component: string) => void;
 }
@@ -10,7 +10,7 @@ interface SideNavigationsProps {
 
 
 
-export const AdminSideNavigation: FC<SideNavigationsProps> = ({ activeComponent, setActiveComponent }) => {
+export const AdminSideNavigation: FC<AdminSideNavigationsProps> = ({ activeComponent, setActiveComponent }) => {
 
 
     return (

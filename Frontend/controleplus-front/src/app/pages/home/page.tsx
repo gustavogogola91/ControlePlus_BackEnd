@@ -3,9 +3,10 @@
 import { DashboardSideNavigation } from "@/app/components/ui/sideNavigation";
 import { useState } from "react";
 
-import dashboard from "./dashboard";
-import relatorios from "./relatorios";
-import historico from "./historico";
+import Dashboard from "./Dashboard";
+import Relatorios from "./Relatorios";
+import Historico from "./Historico";
+
 
 
 export default function home() {
@@ -21,9 +22,9 @@ export default function home() {
                 />
             </aside>
             <div className="flex mx-auto">
-                {activeComponent === "dashboard" && dashboard() }
-                {activeComponent === "relatorios" && relatorios() }
-                {activeComponent === "historico" && historico() }
+                {activeComponent === "dashboard" && <Dashboard/> }
+                {activeComponent === "relatorios" && <Relatorios/> }
+                {activeComponent === "historico" && <Historico/> }
             </div>
         </div>
     )

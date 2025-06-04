@@ -1,14 +1,14 @@
 
 
 
-const relatorios = () => {
+const Relatorios = () => {
 
 
     return (
         <>
-            <h1>relatorios</h1>
+            <h1>Relatorios</h1>
         </>
     )
 }
 
-export default relatorios;
+export default Relatorios;
