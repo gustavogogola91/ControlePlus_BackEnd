@@ -1,7 +1,7 @@
 "use client"
 
 import { Calendar, House, Clipboard } from "lucide-react";
-import { Component, FC, useEffect, useState } from "react"
+import { FC } from "react"
 
 interface SideNavigationsProps {
     activeComponent: string,
