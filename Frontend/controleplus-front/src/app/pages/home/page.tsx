@@ -3,9 +3,9 @@
 import { DashboardSideNavigation } from "@/app/components/ui/sideNavigation";
 import { useState } from "react";
 
-import Dashboard from "./Dashboard";
-import Relatorios from "./Relatorios";
-import Historico from "./Historico";
+import Dashboard from "./dashboard";
+import Relatorios from "./relatorios";
+import Historico from "./historico";
 
 
 

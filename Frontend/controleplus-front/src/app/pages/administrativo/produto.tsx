@@ -318,7 +318,7 @@ function EditarProduto({ produtoOriginal }: { produtoOriginal: produto }) {
   );
 }
 
-function AdicionarProduto() { //FIXME Each child in a list should have a unique "key" prop.
+function AdicionarProduto() {
   const [showModal, setShowModal] = useState(false);
   const [produto, setProduto] = useState<produtoPost>({
     cod: 0,
@@ -361,7 +361,7 @@ function AdicionarProduto() { //FIXME Each child in a list should have a unique 
     buscarSetor();
   }, []);
 
-  function postProduto(produto: {
+  async function postProduto(produto: {
     cod: number;
     nome: string;
     descricao: string;
@@ -372,7 +372,8 @@ function AdicionarProduto() { //FIXME Each child in a list should have a unique 
     categoriaId: number;
   }) {
     try {
-      fetch(`${ApiUrl}/`, {
+      alert("Inciando post")
+      await fetch(`${ApiUrl}/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(produto),
@@ -508,7 +509,7 @@ function AdicionarProduto() { //FIXME Each child in a list should have a unique 
               >
                 <option value="">Selecione um setor</option>
                 {setores.map((setor) => {
-                  return <option value={setor.id}>{setor.nome}</option>;
+                  return <option key={setor.id} value={setor.id}>{setor.nome}</option>;
                 })}
               </select>
               <select
@@ -519,7 +520,7 @@ function AdicionarProduto() { //FIXME Each child in a list should have a unique 
                 <option value="">Selecione um fornecedor</option>
                 {fornecedores.map((fornecedor) => {
                   return (
-                    <option value={fornecedor.id}>{fornecedor.nome}</option>
+                    <option key={fornecedor.id} value={fornecedor.id}>{fornecedor.nome}</option>
                   );
                 })}
               </select>
@@ -530,7 +531,7 @@ function AdicionarProduto() { //FIXME Each child in a list should have a unique 
               >
                 <option value="">Selecione uma categoria</option>
                 {categorias.map((categoria) => {
-                  return <option value={categoria.id}>{categoria.nome}</option>;
+                  return <option key={categoria.id} value={categoria.id}>{categoria.nome}</option>;
                 })}
               </select>
 

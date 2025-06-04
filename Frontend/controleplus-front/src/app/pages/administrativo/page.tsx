@@ -1,8 +1,8 @@
 "use client"
 import { useState } from "react"
 import { AdminSideNavigation } from "@/app/components/ui/adminSideNavigation"
-import Produto from "./Produto"
-import Estoque from "./Estoque"
+import Produto from "./produto"
+import Estoque from "./estoque"
 
 
 export default function administrativo() {

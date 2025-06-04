@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { estoque } from "./Estoque";
+import { estoque } from "./estoque";
 
 const ApiUrlProdutos = "http://localhost:5290/produto";
 const ApiUrlEstoques = "http://localhost:5290/estoque";
